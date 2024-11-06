@@ -220,6 +220,11 @@ Transform:
   m_Father: {fileID: 917571473}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &116855831 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9004059565206995128, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
+  m_PrefabInstance: {fileID: 9004059566180269157}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &259768098
 GameObject:
   m_ObjectHideFlags: 0
@@ -231,7 +236,6 @@ GameObject:
   - component: {fileID: 259768099}
   - component: {fileID: 259768100}
   - component: {fileID: 259768101}
-  - component: {fileID: 259768102}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -290,21 +294,6 @@ MonoBehaviour:
   jumpHeight: 2
   gravity: -9.81
   maxLookAngle: 90
---- !u!114 &259768102
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 259768098}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a34cd2e2bd34a4d6c9d30e21d6c629ac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  red: {fileID: 1944624532}
-  blue: {fileID: 1514077406}
-  portalCooldown: 3
 --- !u!1 &321243679
 GameObject:
   m_ObjectHideFlags: 0
@@ -645,8 +634,8 @@ GameObject:
   - component: {fileID: 788973099}
   - component: {fileID: 788973098}
   - component: {fileID: 788973097}
-  - component: {fileID: 788973101}
   - component: {fileID: 788973102}
+  - component: {fileID: 788973103}
   m_Layer: 0
   m_Name: TeleportingCube
   m_TagString: Untagged
@@ -725,28 +714,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 788973096}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 8.41, y: 0.62, z: -3.64}
+  m_LocalPosition: {x: 14.83, y: 0.62, z: -3.64}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &788973101
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 788973096}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a34cd2e2bd34a4d6c9d30e21d6c629ac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  red: {fileID: 1944624532}
-  blue: {fileID: 1514077406}
-  portalCooldown: 3
 --- !u!54 &788973102
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -763,6 +737,19 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 1
+--- !u!114 &788973103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 788973096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0da5ed9301804c5399ccc6bcf19aee3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  vel: {x: 0, y: 0, z: 1.09}
 --- !u!1 &917571472
 GameObject:
   m_ObjectHideFlags: 0
@@ -1096,6 +1083,20 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 9004059565206995131, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
   m_PrefabInstance: {fileID: 9004059566180269157}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1514077411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 116855831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a34cd2e2bd34a4d6c9d30e21d6c629ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  otherPortal: {fileID: 1944624532}
+  travellers: []
 --- !u!1 &1638201496
 GameObject:
   m_ObjectHideFlags: 0
@@ -1660,6 +1661,25 @@ Transform:
   m_Father: {fileID: 917571473}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2117515267 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9004059565206995128, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
+  m_PrefabInstance: {fileID: 1944624531}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2117515272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2117515267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a34cd2e2bd34a4d6c9d30e21d6c629ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  otherPortal: {fileID: 1514077406}
+  travellers: []
 --- !u!1001 &9004059566180269157
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1667,6 +1687,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 9004059565206995078, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
+      propertyPath: m_Size.z
+      value: 1.24
+      objectReference: {fileID: 0}
     - target: {fileID: 9004059565206995079, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: otherPortalScreen
       value: 

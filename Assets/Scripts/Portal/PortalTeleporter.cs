@@ -1,51 +1,88 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class PortalTeleporter : MonoBehaviour
 {
-    public Transform red;
-    public Transform blue;
-
-    public float portalCooldown = 3f;
-    private float timer = 0f;
-
-    private void Update()
+    [System.Serializable]
+    public struct TravelerData
     {
-        if (timer > 0)
-            timer -= Time.deltaTime;
-        else
-            timer = 0f;
+        public Transform t;
+        public float startingDotProduct;
 
-        Rigidbody rb = GetComponent<Rigidbody>();
-        if (rb != null)
-            rb.velocity = new Vector3(0, 0, 0.1f);
+        public TravelerData(Transform traveler, Transform portal, Vector3 f)
+        {
+            t = traveler;
+            startingDotProduct = Vector3.Dot(traveler.position - portal.position, f);
+        }
+    }
+
+    public Transform otherPortal;
+    [SerializeField] public List<TravelerData> travellers;
+
+
+    private Vector3 initalForward;
+
+    private void Awake()
+    {
+        initalForward = transform.forward;
+        travellers = new();
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        Debug.Log("GOIJNG");
+        TravelerData newcomer = new TravelerData(other.transform, transform, initalForward);
+
+        //if already in list, return
+        foreach(TravelerData traveler in travellers)
+        {
+            if (newcomer.t == traveler.t)
+                return;
+        }
+
+        travellers.Add(newcomer);
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (timer > 0)
-            return;
+        Debug.Log("EXITEREIER");
 
-        Debug.Log("In");
-
-        if(other.transform == red)
+        TravelerData exiter = new TravelerData(other.transform, transform, initalForward);
+        TravelerData? TravelerToRemove = null;
+        foreach (TravelerData traveler in travellers)
         {
-            Debug.Log("bobob");
-            Teleport(red, blue, transform.position - red.position);
-        }
-        else if (other.transform == blue)
-        {
-            Debug.Log("zasarrarr");
-            Teleport(blue, red, transform.position - blue.position);
+            if (exiter.t != traveler.t)
+                continue;
+
+            Debug.Log(exiter.startingDotProduct);
+            Debug.Log(traveler.startingDotProduct);
+
+            if (AreOppositeSigns(exiter.startingDotProduct, traveler.startingDotProduct))
+            {
+                Debug.Log("teleporting");
+                Teleport(exiter.t, otherPortal.position, exiter.t.position - transform.position);
+            }
+
+            TravelerToRemove = traveler;
         }
 
-        timer = portalCooldown;
+        if (TravelerToRemove.HasValue)
+            travellers.Remove(TravelerToRemove.Value);
     }
 
 
-    private void Teleport(Transform start, Transform end, Vector3 displacement)
+    private void Teleport(Transform traveler, Vector3 endPos, Vector3 displacement)
     {
-        transform.position = end.position + displacement;
+        traveler.position = endPos + displacement * 1.05f;
+        Debug.Log("TELEPORTED0");
     }
+
+    bool AreOppositeSigns(float number1, float number2)
+    {
+        return (number1 > 0 && number2 < 0) || (number1 < 0 && number2 > 0);
+    }
+
 }
