@@ -76,8 +76,19 @@ public class PortalTeleporter : MonoBehaviour
 
     private void Teleport(Transform traveler, Vector3 endPos, Vector3 displacement)
     {
-        traveler.position = endPos + displacement * 1.05f;
+        CharacterController controller = traveler.GetComponent<CharacterController>();
+        if (controller)
+            controller.enabled = false;
+
+        Debug.Log("Traveler" + traveler.position);
+        Debug.Log("Endpos" + endPos);
+        Debug.Log("DISPLACEMENT" + displacement);
+        traveler.position = endPos + displacement;
+        Debug.Log("Traveler" + traveler.position);
         Debug.Log("TELEPORTED0");
+
+        if (controller)
+            controller.enabled = true;
     }
 
     bool AreOppositeSigns(float number1, float number2)
