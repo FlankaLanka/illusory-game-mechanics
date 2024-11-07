@@ -18,7 +18,8 @@ public class PortalCameraTransform : MonoBehaviour
 
     private void Update()
     {
-        FacePlayer();
+        //face player solved with backface rendering in shader graph
+        //FacePlayer();
         MatchTransformRelative(playerCamTransform, transform, portalCamTransform, otherPortalScreen);
     }
 

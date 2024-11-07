@@ -22,13 +22,29 @@ public class PortalTeleporter : MonoBehaviour
     public Transform otherPortal;
     [SerializeField] public List<TravelerData> travellers;
 
-
     private Vector3 initalForward;
 
     private void Awake()
     {
         initalForward = transform.forward;
         travellers = new();
+    }
+
+    private void Update()
+    {
+        List<TravelerData> TravelersToRemove = new();
+        foreach (TravelerData traveler in travellers)
+        {
+            float curDotProduct = Vector3.Dot(traveler.t.position - transform.position, initalForward);
+            if (AreOppositeSigns(curDotProduct, traveler.startingDotProduct))
+            {
+                Debug.Log("teleporting");
+                Teleport(traveler.t, otherPortal.position, traveler.t.position - transform.position);
+
+                TravelersToRemove.Add(traveler);
+            }
+        }
+        travellers.RemoveAll(item => TravelersToRemove.Contains(item));
     }
 
     private void OnTriggerEnter(Collider other)
@@ -51,6 +67,7 @@ public class PortalTeleporter : MonoBehaviour
         Debug.Log("EXITEREIER");
 
         TravelerData exiter = new TravelerData(other.transform, transform, initalForward);
+
         TravelerData? TravelerToRemove = null;
         foreach (TravelerData traveler in travellers)
         {
@@ -60,16 +77,16 @@ public class PortalTeleporter : MonoBehaviour
             Debug.Log(exiter.startingDotProduct);
             Debug.Log(traveler.startingDotProduct);
 
-            if (AreOppositeSigns(exiter.startingDotProduct, traveler.startingDotProduct))
-            {
-                Debug.Log("teleporting");
-                Teleport(exiter.t, otherPortal.position, exiter.t.position - transform.position);
-            }
+            //if (AreOppositeSigns(exiter.startingDotProduct, traveler.startingDotProduct))
+            //{
+            //    Debug.Log("teleporting");
+            //    Teleport(exiter.t, otherPortal.position, exiter.t.position - transform.position);
+            //}
 
             TravelerToRemove = traveler;
         }
 
-        if (TravelerToRemove.HasValue)
+        if (TravelerToRemove.HasValue && travellers.Contains(TravelerToRemove.Value))
             travellers.Remove(TravelerToRemove.Value);
     }
 
