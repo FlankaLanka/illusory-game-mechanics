@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 9004059565057893816}
   - component: {fileID: 9004059565057893817}
   - component: {fileID: 9004059565057893822}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: FrameTop
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -271,7 +271,7 @@ GameObject:
   - component: {fileID: 9004059565931331488}
   - component: {fileID: 9004059565931331489}
   - component: {fileID: 9004059565931331494}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: FrameRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -444,9 +444,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb9fce07407254e409797f9dc8629f50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cam: {fileID: 0}
+  portalCam: {fileID: 0}
+  playerCam: {fileID: 0}
   portal: {fileID: 9004059565206995131}
   manualoffsetMagnitude: 0
+  tester: {fileID: 0}
 --- !u!1 &9004059566275096179
 GameObject:
   m_ObjectHideFlags: 0
@@ -456,7 +458,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9004059566275096178}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Frame
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -493,7 +495,7 @@ GameObject:
   - component: {fileID: 9004059567050248112}
   - component: {fileID: 9004059567050248113}
   - component: {fileID: 9004059567050248118}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: FrameLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}

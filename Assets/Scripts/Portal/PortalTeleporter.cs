@@ -38,9 +38,7 @@ public class PortalTeleporter : MonoBehaviour
             float curDotProduct = Vector3.Dot(traveler.t.position - transform.position, initalForward);
             if (AreOppositeSigns(curDotProduct, traveler.startingDotProduct))
             {
-                Debug.Log("teleporting");
-                Teleport(traveler.t, otherPortal.position, traveler.t.position - transform.position);
-
+                Teleport(traveler.t, traveler.t.position - transform.position);
                 TravelersToRemove.Add(traveler);
             }
         }
@@ -49,7 +47,6 @@ public class PortalTeleporter : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("GOIJNG");
         TravelerData newcomer = new TravelerData(other.transform, transform, initalForward);
 
         //if already in list, return
@@ -58,13 +55,12 @@ public class PortalTeleporter : MonoBehaviour
             if (newcomer.t == traveler.t)
                 return;
         }
-
         travellers.Add(newcomer);
     }
 
     private void OnTriggerExit(Collider other)
     {
-        Debug.Log("EXITEREIER");
+        Debug.Log("EXITER");
 
         TravelerData exiter = new TravelerData(other.transform, transform, initalForward);
 
@@ -73,16 +69,6 @@ public class PortalTeleporter : MonoBehaviour
         {
             if (exiter.t != traveler.t)
                 continue;
-
-            Debug.Log(exiter.startingDotProduct);
-            Debug.Log(traveler.startingDotProduct);
-
-            //if (AreOppositeSigns(exiter.startingDotProduct, traveler.startingDotProduct))
-            //{
-            //    Debug.Log("teleporting");
-            //    Teleport(exiter.t, otherPortal.position, exiter.t.position - transform.position);
-            //}
-
             TravelerToRemove = traveler;
         }
 
@@ -90,19 +76,20 @@ public class PortalTeleporter : MonoBehaviour
             travellers.Remove(TravelerToRemove.Value);
     }
 
-
-    private void Teleport(Transform traveler, Vector3 endPos, Vector3 displacement)
+    private void Teleport(Transform traveler, Vector3 displacement)
     {
         CharacterController controller = traveler.GetComponent<CharacterController>();
         if (controller)
             controller.enabled = false;
 
-        Debug.Log("Traveler" + traveler.position);
-        Debug.Log("Endpos" + endPos);
-        Debug.Log("DISPLACEMENT" + displacement);
-        traveler.position = endPos + displacement;
-        Debug.Log("Traveler" + traveler.position);
-        Debug.Log("TELEPORTED0");
+        //local space of object to current portal
+        Matrix4x4 travelerToPortalA = transform.worldToLocalMatrix * traveler.localToWorldMatrix;
+        //world space of object if it were local to out portal
+        Matrix4x4 travelerNewWorldMatrix = otherPortal.localToWorldMatrix * travelerToPortalA;
+        traveler.position = travelerNewWorldMatrix.GetPosition();
+        traveler.rotation = travelerNewWorldMatrix.rotation;
+        traveler.localScale = travelerNewWorldMatrix.lossyScale;
+        Debug.Log("TELEPORTED");
 
         if (controller)
             controller.enabled = true;
