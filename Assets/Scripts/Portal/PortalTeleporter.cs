@@ -56,6 +56,9 @@ public class PortalTeleporter : MonoBehaviour
                 return;
         }
         travellers.Add(newcomer);
+
+        if(other.tag != "Player")
+            CreateClone(newcomer.t);
     }
 
     private void OnTriggerExit(Collider other)
@@ -74,7 +77,22 @@ public class PortalTeleporter : MonoBehaviour
 
         if (TravelerToRemove.HasValue && travellers.Contains(TravelerToRemove.Value))
             travellers.Remove(TravelerToRemove.Value);
+
+        if (other.tag != "Player")
+            DeleteClone(exiter.t);
     }
+
+    private void CreateClone(Transform newcomer)
+    {
+
+    }
+
+
+    private void DeleteClone(Transform exiter)
+    {
+
+    }
+
 
     private void Teleport(Transform traveler, Vector3 displacement)
     {
