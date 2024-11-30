@@ -5,146 +5,71 @@ using UnityEngine;
 [RequireComponent(typeof(Camera))]
 public class ObliqueCameraProjection : MonoBehaviour
 {
-    public Camera portalCam;
-    public Camera playerCam;
-    public Transform portal;
-    public float manualoffsetMagnitude = 0f;
+    public Transform clipPlane; // The new near plane
+    public bool DisableObliqueProjection;
 
-    public Transform tester;
+    private Camera cam;
+    private Matrix4x4 cameraOriginalProjection;
 
-    private void Awake()
+    void Start()
     {
-        portalCam = GetComponent<Camera>();
+        cam = GetComponent<Camera>();
+        cameraOriginalProjection = cam.projectionMatrix;
     }
 
-    private void Update()
+    void OnDrawGizmos()
     {
-        Vector3 curForward = portal.forward;
-        if(Vector3.Dot(portal.forward, portal.position - transform.position) <= 0)
+        if (clipPlane != null)
         {
-            curForward = -curForward;
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(clipPlane.position, clipPlane.position + clipPlane.forward * 2f);
+        }
+    }
+
+    void OnPreCull()
+    {
+        if (clipPlane == null || DisableObliqueProjection)
+        {
+            cam.projectionMatrix = cameraOriginalProjection;
+            return;
         }
 
-        //SetObliqueNearClipPlane(portalCam, portal.position, curForward);
 
-        //SetCameraNearPlane(portal.position, curForward);
-    }
+        Vector3 dir = cam.transform.position - clipPlane.position;
+        Vector3 planeNormal = clipPlane.forward;
+        if (Vector3.Dot(clipPlane.forward, dir) < 0)
+            planeNormal = -planeNormal;
 
-
-    public void SetCameraNearPlane(Vector3 position, Vector3 forward)
-    {
-        // Create a plane based on the position and forward direction
-        Plane portalPlane = new Plane(forward, position);
-
-        // Set the camera's near clip plane to this plane using oblique projection
-        Matrix4x4 projectionMatrix = CalculateObliqueMatrix(portalCam, portalPlane);
-        portalCam.projectionMatrix = projectionMatrix;
-    }
-
-    // Function to calculate an oblique projection matrix from a given plane
-    private Matrix4x4 CalculateObliqueMatrix(Camera cam, Plane plane)
-    {
-        // Get the current projection matrix
+        Vector4 plane = CameraSpacePlane(clipPlane.position, -planeNormal);
         Matrix4x4 projection = cam.projectionMatrix;
-
-        // Convert the plane into camera space
-        Vector4 planeCameraSpace = CameraSpacePlane(cam, plane);
-
-        // Modify the projection matrix with the oblique projection
-        MakeOblique(ref projection, planeCameraSpace);
-        return projection;
+        MakeProjectionOblique(ref projection, plane);
+        cam.projectionMatrix = projection;
     }
 
-    // Converts a world-space plane to a camera-space plane
-    private Vector4 CameraSpacePlane(Camera cam, Plane plane)
+    private Vector4 CameraSpacePlane(Vector3 position, Vector3 normal)
     {
-        Vector3 camPosition = cam.transform.position;
-        Vector3 normal = plane.normal;
-        float distance = plane.distance + Vector3.Dot(normal, camPosition);
+        Vector3 cameraPosition = cam.worldToCameraMatrix.MultiplyPoint(position);
+        Vector3 cameraNormal = cam.worldToCameraMatrix.MultiplyVector(normal).normalized;
 
-        Vector3 normalCameraSpace = cam.worldToCameraMatrix.MultiplyVector(normal).normalized;
-        float offsetCameraSpace = distance - Vector3.Dot(normalCameraSpace, camPosition);
-
-        return new Vector4(normalCameraSpace.x, normalCameraSpace.y, normalCameraSpace.z, offsetCameraSpace);
+        float distance = -Vector3.Dot(cameraPosition, cameraNormal);
+        return new Vector4(cameraNormal.x, cameraNormal.y, cameraNormal.z, distance);
     }
 
-    // Updates the projection matrix for oblique clipping
-    private void MakeOblique(ref Matrix4x4 projectionMatrix, Vector4 plane)
+    private void MakeProjectionOblique(ref Matrix4x4 projection, Vector4 plane)
     {
-        Vector4 q = projectionMatrix.inverse * new Vector4(
-            Sign(plane.x),
-            Sign(plane.y),
-            1.0f,
-            1.0f
+        // Calculate clip-space corner point opposite the clipping plane
+        Vector4 q = new Vector4(
+            (Mathf.Sign(plane.x) + projection[8]) / projection[0],
+            (Mathf.Sign(plane.y) + projection[9]) / projection[5],
+            -1.0f,
+            (1.0f + projection[10]) / projection[14]
         );
 
-        Vector4 c = plane * (2.0F / Vector4.Dot(plane, q));
-        projectionMatrix[2] = c.x - projectionMatrix[3];
-        projectionMatrix[6] = c.y - projectionMatrix[7];
-        projectionMatrix[10] = c.z - projectionMatrix[11];
-        projectionMatrix[14] = c.w - projectionMatrix[15];
+        Vector4 c = plane * (2.0f / Vector4.Dot(plane, q));
+        projection[2] = c.x;
+        projection[6] = c.y;
+        projection[10] = c.z + 1.0f;
+        projection[14] = c.w;
     }
 
-    private float Sign(float value)
-    {
-        return (value < 0.0F) ? -1.0F : 1.0F;
-    }
-    /// <summary>
-    /// ////////////////////////////////
-    /// </summary>
-    /// <param name="cam"></param>
-    /// <param name="point"></param>
-    /// <param name="normal"></param>
-    /// <param name="minNearDistance"></param>
-
-    public void SetObliqueNearClipPlane(Camera cam, Vector3 point, Vector3 normal, float minNearDistance = 0.01f)
-    {
-        // Convert point and normal to the camera's local space
-        Vector3 camSpacePos = cam.worldToCameraMatrix.MultiplyPoint(point);
-        Vector3 camSpaceNormal = cam.worldToCameraMatrix.MultiplyVector(normal).normalized;
-
-        // Calculate the distance of the plane along the normal
-        float d = -Vector3.Dot(camSpacePos, camSpaceNormal);
-
-        // Ensure the near distance is at least the minimum threshold to avoid out-of-frustum errors
-        if (d < minNearDistance)
-        {
-            d = minNearDistance;
-        }
-
-        // Set up the oblique projection matrix
-        Vector4 clipPlaneCamSpace = new Vector4(camSpaceNormal.x, camSpaceNormal.y, camSpaceNormal.z, d);
-        Matrix4x4 projectionMatrix = cam.projectionMatrix;
-
-        // Apply the oblique projection matrix
-        projectionMatrix = CalculateObliqueMatrix(projectionMatrix, clipPlaneCamSpace);
-        cam.projectionMatrix = projectionMatrix;
-
-        tester.position = projectionMatrix.GetPosition();
-        tester.rotation = projectionMatrix.rotation;
-        tester.localScale = projectionMatrix.lossyScale;
-    }
-
-    private static Matrix4x4 CalculateObliqueMatrix(Matrix4x4 projectionMatrix, Vector4 clipPlane)
-    {
-        // Calculate the clip-space corner point opposite the clipping plane
-        Vector4 q = projectionMatrix.inverse * new Vector4(
-            Mathf.Sign(clipPlane.x),
-            Mathf.Sign(clipPlane.y),
-            1.0f,
-            1.0f
-        );
-
-        // Calculate the scaling factor
-        Vector4 c = clipPlane * (2.0f / Vector4.Dot(clipPlane, q));
-
-        // Replace the third row of the projection matrix
-        projectionMatrix[2] = c.x - projectionMatrix[3];
-        projectionMatrix[6] = c.y - projectionMatrix[7];
-        projectionMatrix[10] = c.z - projectionMatrix[11];
-        projectionMatrix[14] = c.w - projectionMatrix[15];
-
-        return projectionMatrix;
-    }
-    
 }
