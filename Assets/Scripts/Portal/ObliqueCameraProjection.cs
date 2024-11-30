@@ -8,6 +8,9 @@ public class ObliqueCameraProjection : MonoBehaviour
     public Transform clipPlane; // The new near plane
     public bool DisableObliqueProjection;
 
+    [Range(0.0f,0.2f)]
+    public float obliqueOffset; //set the clip plane slgihtly behind portal to remove floating precision problems, set to 0 to see problem
+
     private Camera cam;
 
     void Start()
@@ -15,14 +18,14 @@ public class ObliqueCameraProjection : MonoBehaviour
         cam = GetComponent<Camera>();
     }
 
-    //void OnDrawGizmos()
-    //{
-    //    if (clipPlane != null)
-    //    {
-    //        Gizmos.color = Color.green;
-    //        Gizmos.DrawLine(clipPlane.position, clipPlane.position + clipPlane.forward * 2f);
-    //    }
-    //}
+    void OnDrawGizmos()
+    {
+        if (clipPlane != null)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(clipPlane.position, clipPlane.position + clipPlane.forward * 2f);
+        }
+    }
 
     void Update()
     {
@@ -32,14 +35,21 @@ public class ObliqueCameraProjection : MonoBehaviour
             return;
         }
 
-
         Vector3 dir = cam.transform.position - clipPlane.position;
         Vector3 planeNormal = clipPlane.forward;
-        if (Vector3.Dot(clipPlane.forward, dir) < 0)
+        Vector3 planePosition = clipPlane.position;
+        if (Vector3.Dot(clipPlane.forward, dir) > 0)
+        {
             planeNormal = -planeNormal;
+            planePosition -= planeNormal * obliqueOffset;
+        }
+        else
+        {
+            planePosition -= planeNormal * obliqueOffset;
+        }
 
-        Vector4 plane = CameraSpacePlane(clipPlane.position, -planeNormal);
         cam.ResetProjectionMatrix();
+        Vector4 plane = CameraSpacePlane(planePosition, planeNormal);
         Matrix4x4 projection = cam.projectionMatrix;
         MakeProjectionOblique(ref projection, plane);
         cam.projectionMatrix = projection;

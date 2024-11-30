@@ -21,6 +21,9 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKey(KeyCode.Z))
+            return;
+
         isGrounded = controller.isGrounded;
 
         if (isGrounded && velocity.y < 0)
@@ -43,9 +46,13 @@ public class PlayerMovement : MonoBehaviour
         float moveX = Input.GetAxis("Horizontal"); // A and D keys
         float moveZ = Input.GetAxis("Vertical");   // W and S keys
 
+        float finalSpeed = speed;
+        if (Input.GetKey(KeyCode.LeftShift))
+            finalSpeed *= 2f;
+
         // Calculate movement direction
         Vector3 move = transform.right * moveX + transform.forward * moveZ;
-        controller.Move(move * speed * Time.deltaTime); // Move the player
+        controller.Move(move * finalSpeed * Time.deltaTime); // Move the player
     }
 
     void HandleJump()
