@@ -9,28 +9,26 @@ public class ObliqueCameraProjection : MonoBehaviour
     public bool DisableObliqueProjection;
 
     private Camera cam;
-    private Matrix4x4 cameraOriginalProjection;
 
     void Start()
     {
         cam = GetComponent<Camera>();
-        cameraOriginalProjection = cam.projectionMatrix;
     }
 
-    void OnDrawGizmos()
-    {
-        if (clipPlane != null)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawLine(clipPlane.position, clipPlane.position + clipPlane.forward * 2f);
-        }
-    }
+    //void OnDrawGizmos()
+    //{
+    //    if (clipPlane != null)
+    //    {
+    //        Gizmos.color = Color.green;
+    //        Gizmos.DrawLine(clipPlane.position, clipPlane.position + clipPlane.forward * 2f);
+    //    }
+    //}
 
-    void OnPreCull()
+    void Update()
     {
         if (clipPlane == null || DisableObliqueProjection)
         {
-            cam.projectionMatrix = cameraOriginalProjection;
+            cam.ResetProjectionMatrix();
             return;
         }
 
@@ -41,6 +39,7 @@ public class ObliqueCameraProjection : MonoBehaviour
             planeNormal = -planeNormal;
 
         Vector4 plane = CameraSpacePlane(clipPlane.position, -planeNormal);
+        cam.ResetProjectionMatrix();
         Matrix4x4 projection = cam.projectionMatrix;
         MakeProjectionOblique(ref projection, plane);
         cam.projectionMatrix = projection;

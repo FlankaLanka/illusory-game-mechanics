@@ -1638,7 +1638,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!64 &1764449362
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -1648,7 +1648,7 @@ MeshCollider:
   m_GameObject: {fileID: 1764449361}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 4
   m_Convex: 0
   m_CookingOptions: 30
@@ -1861,6 +1861,10 @@ PrefabInstance:
     - target: {fileID: 9004059565493449592, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_Name
       value: RedPortal
+      objectReference: {fileID: 0}
+    - target: {fileID: 9004059565493449592, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9004059565493449595, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_RootOrder
@@ -2353,6 +2357,10 @@ PrefabInstance:
     - target: {fileID: 9004059565493449592, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_Name
       value: BluePortal
+      objectReference: {fileID: 0}
+    - target: {fileID: 9004059565493449592, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9004059565493449595, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_RootOrder
