@@ -813,7 +813,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sliceMat: {fileID: 2100000, guid: 93c15ed4162cf4392b81063759b18a26, type: 2}
-  clone: {fileID: 0}
 --- !u!1 &917571472
 GameObject:
   m_ObjectHideFlags: 0

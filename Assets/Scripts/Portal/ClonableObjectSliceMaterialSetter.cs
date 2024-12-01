@@ -8,7 +8,6 @@ using UnityEngine.Assertions;
 public class ClonableObjectSliceMaterialSetter : MonoBehaviour
 {
     public Material sliceMat;
-    public GameObject clone = null;
 
     private MeshRenderer m;
 

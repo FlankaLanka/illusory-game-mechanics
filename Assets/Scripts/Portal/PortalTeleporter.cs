@@ -110,13 +110,27 @@ public class PortalTeleporter : MonoBehaviour
 
         MeshFilter cloneMeshFilter = newclone.AddComponent<MeshFilter>();
         cloneMeshFilter.mesh = newcomer.t.GetComponent<MeshFilter>().mesh;
-
         MeshRenderer cloneMeshRenderer = newclone.AddComponent<MeshRenderer>();
         cloneMeshRenderer.material = new Material(newcomer.t.GetComponent<MeshRenderer>().material);
-        //cloneMeshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         cloneMeshRenderer.receiveShadows = false;
 
+        //get relative transforms
         MatchTransformRelative(newcomer.t, thisPortalScreen.transform, newclone.transform, otherPortal);
+
+        //set clip shader
+        Vector3 planeDirection = initalForward;
+        if (Vector3.Dot(newcomer.t.position - thisPortalScreen.position, initalForward) > 0)
+            planeDirection = -planeDirection;
+
+        newcomer.t.GetComponent<MeshRenderer>().material.SetVector("_PlanePoint",
+            new Vector4(thisPortalScreen.position.x, thisPortalScreen.position.y, thisPortalScreen.position.z, 0));
+        newcomer.t.GetComponent<MeshRenderer>().material.SetVector("_PlaneNormal",
+            new Vector4(planeDirection.x, planeDirection.y, planeDirection.z, 0));
+        newcomer.t.GetComponent<MeshRenderer>().material.SetInt("_EnableSlice", 1);
+
+        cloneMeshRenderer.material.SetVector("_PlanePoint", new Vector4(otherPortal.position.x, otherPortal.position.y, otherPortal.position.z, 0));
+        cloneMeshRenderer.material.SetVector("_PlaneNormal", new Vector4(-planeDirection.x, -planeDirection.y, -planeDirection.z, 0));
+        cloneMeshRenderer.material.SetInt("_EnableSlice", 1);
     }
 
 
