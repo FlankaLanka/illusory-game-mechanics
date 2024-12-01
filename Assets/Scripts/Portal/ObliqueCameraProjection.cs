@@ -18,14 +18,14 @@ public class ObliqueCameraProjection : MonoBehaviour
         cam = GetComponent<Camera>();
     }
 
-    void OnDrawGizmos()
-    {
-        if (clipPlane != null)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawLine(clipPlane.position, clipPlane.position + clipPlane.forward * 2f);
-        }
-    }
+    //void OnDrawGizmos()
+    //{
+    //    if (clipPlane != null)
+    //    {
+    //        Gizmos.color = Color.green;
+    //        Gizmos.DrawLine(clipPlane.position, clipPlane.position + clipPlane.forward * 2f);
+    //    }
+    //}
 
     void Update()
     {

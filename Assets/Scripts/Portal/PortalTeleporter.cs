@@ -27,8 +27,6 @@ public class PortalTeleporter : MonoBehaviour
     public Transform otherPortal;
     [SerializeField] public List<TravelerData> allTravelers;
 
-    public float minDistance = 0.015f;
-
     private Vector3 initalForward;
 
     private void Awake()
@@ -37,23 +35,9 @@ public class PortalTeleporter : MonoBehaviour
         allTravelers = new();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         UpdateTravelersClones(allTravelers, thisPortalScreen.transform, otherPortal);
-
-        //clip player if they are too close to portal plane
-        //foreach(TravelerData traveler in allTravelers)
-        //{
-        //    if(traveler.t.tag != "Player")
-        //        continue;
-
-        //    float distance = DistanceFromPointToPlane(thisPortalScreen.position, initalForward, traveler.t.position);
-        //    Debug.Log(distance + "     distance");
-        //    Vector3 amtToClamp = CalculateAdjustmentVector(initalForward, distance, minDistance);
-        //    Debug.Log(amtToClamp.magnitude + "    magnitude need to move");
-        //    traveler.t.position += amtToClamp;
-        //}
-
 
         //determine which travelers have moved past the portal plane and need to be teleported
         List<TravelerData> TravelersToRemove = new();
@@ -128,6 +112,9 @@ public class PortalTeleporter : MonoBehaviour
         cloneMeshRenderer.material = new Material(newcomer.t.GetComponent<MeshRenderer>().material);
         cloneMeshRenderer.receiveShadows = false;
 
+        
+        //cloneMeshRenderer.enabled = false;
+
         //get relative transforms
         MatchTransformRelative(newcomer.t, thisPortalScreen.transform, newclone.transform, otherPortal);
 
@@ -145,6 +132,7 @@ public class PortalTeleporter : MonoBehaviour
         cloneMeshRenderer.material.SetVector("_PlanePoint", new Vector4(otherPortal.position.x, otherPortal.position.y, otherPortal.position.z, 0));
         cloneMeshRenderer.material.SetVector("_PlaneNormal", new Vector4(-planeDirection.x, -planeDirection.y, -planeDirection.z, 0));
         cloneMeshRenderer.material.SetInt("_EnableSlice", 1);
+
     }
 
 
@@ -157,6 +145,7 @@ public class PortalTeleporter : MonoBehaviour
             return;
         }
 
+        exiter.t.GetComponent<MeshRenderer>().material.SetInt("_EnableSlice", 0);
         Destroy(exiter.clone.gameObject);
         exiter.clone = null;
     }
