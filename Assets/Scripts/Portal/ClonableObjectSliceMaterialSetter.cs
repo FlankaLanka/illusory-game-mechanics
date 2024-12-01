@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 
+[RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
-public class SliceMaterialSetter : MonoBehaviour
+public class ClonableObjectSliceMaterialSetter : MonoBehaviour
 {
+    public Mesh mesh;
+
     public Material sliceMat;
 
     private MeshRenderer m;
@@ -13,8 +16,9 @@ public class SliceMaterialSetter : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        m = GetComponent<MeshRenderer>();
+        mesh = GetComponent<MeshFilter>().mesh;
 
+        m = GetComponent<MeshRenderer>();
         Assert.IsNotNull(sliceMat);
         m.material = new Material(sliceMat);
     }
