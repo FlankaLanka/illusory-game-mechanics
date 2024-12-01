@@ -9,7 +9,7 @@ public class ObliqueCameraProjection : MonoBehaviour
     public bool DisableObliqueProjection;
 
     [Range(-0.1f,0.2f)]
-    public float obliqueOffset; //set the clip plane slgihtly behind portal to remove floating precision problems, set to 0 to see problem
+    public float obliqueOffset; //set the clip plane slightly behind portal to remove floating precision problems, set to 0 to see problem
 
     private Camera cam;
 

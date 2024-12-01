@@ -27,6 +27,8 @@ public class PortalTeleporter : MonoBehaviour
     public Transform otherPortal;
     [SerializeField] public List<TravelerData> allTravelers;
 
+    public float minDistance = 0.015f;
+
     private Vector3 initalForward;
 
     private void Awake()
@@ -39,7 +41,21 @@ public class PortalTeleporter : MonoBehaviour
     {
         UpdateTravelersClones(allTravelers, thisPortalScreen.transform, otherPortal);
 
+        //clip player if they are too close to portal plane
+        //foreach(TravelerData traveler in allTravelers)
+        //{
+        //    if(traveler.t.tag != "Player")
+        //        continue;
 
+        //    float distance = DistanceFromPointToPlane(thisPortalScreen.position, initalForward, traveler.t.position);
+        //    Debug.Log(distance + "     distance");
+        //    Vector3 amtToClamp = CalculateAdjustmentVector(initalForward, distance, minDistance);
+        //    Debug.Log(amtToClamp.magnitude + "    magnitude need to move");
+        //    traveler.t.position += amtToClamp;
+        //}
+
+
+        //determine which travelers have moved past the portal plane and need to be teleported
         List<TravelerData> TravelersToRemove = new();
         TravelerData[] allTravelersArray = allTravelers.ToArray();
 
@@ -54,8 +70,6 @@ public class PortalTeleporter : MonoBehaviour
                 TravelersToRemove.Add(allTravelersArray[i]);
             }
         }
-
-
         allTravelers.RemoveAll(item => TravelersToRemove.Contains(item));
     }
 
@@ -193,4 +207,22 @@ public class PortalTeleporter : MonoBehaviour
         return (number1 > 0 && number2 < 0) || (number1 < 0 && number2 > 0);
     }
 
+    private float DistanceFromPointToPlane(Vector3 planePoint, Vector3 planeNormal, Vector3 point)
+    {
+        Vector3 normalizedNormal = planeNormal.normalized;
+        Vector3 pointToPlane = point - planePoint;
+        float distance = Vector3.Dot(pointToPlane, normalizedNormal);
+        return distance;
+    }
+
+    public Vector3 CalculateAdjustmentVector(Vector3 planeNormal, float distanceToPlane, float minDistance)
+    {
+        if (Mathf.Abs(distanceToPlane) < minDistance)
+        {
+            float adjustmentMagnitude = minDistance - Mathf.Abs(distanceToPlane);
+            Vector3 adjustmentDirection = distanceToPlane > 0 ? planeNormal : -planeNormal;
+            return adjustmentDirection * adjustmentMagnitude;
+        }
+        return Vector3.zero;
+    }
 }
