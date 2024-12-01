@@ -7,21 +7,11 @@ public class PortalCameraTransform : MonoBehaviour
 {
     public Transform playerCamTransform;
     public Transform portalCamTransform;
-    public Transform otherPortalScreen;
-
-    private Vector3 initalPortalForward;
-
-    private void Awake()
-    {
-        initalPortalForward = transform.forward;
-    }
-
+    public Transform otherPortal;
 
     private void Update()
     {
-        //face player solved with backface rendering in shader graph
-        //FacePlayer();
-        MatchTransformRelative(playerCamTransform, transform, portalCamTransform, otherPortalScreen);
+        MatchTransformRelative(playerCamTransform, transform, portalCamTransform, otherPortal);
     }
 
     void MatchTransformRelative(Transform sourceA, Transform sourceB, Transform targetC, Transform targetD)
@@ -35,17 +25,4 @@ public class PortalCameraTransform : MonoBehaviour
         targetC.rotation = targetD.rotation * relativeRotation;
     }
 
-
-    private void FacePlayer()
-    {
-        Vector3 dirPortalToPlayer = playerCamTransform.position - transform.position;
-        if(Vector3.Dot(initalPortalForward, dirPortalToPlayer) < 0)
-        {
-            transform.localRotation = Quaternion.Euler(0, 0, 0);
-        }
-        else
-        {
-            transform.localRotation = Quaternion.Euler(0, 180, 0);
-        }
-    }
 }

@@ -1340,6 +1340,11 @@ Transform:
   m_Father: {fileID: 745343897}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &1437515283 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 9004059565493449595, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
+  m_PrefabInstance: {fileID: 9004059566180269157}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1485575436
 GameObject:
   m_ObjectHideFlags: 0
@@ -1434,11 +1439,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!4 &1514077406 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 9004059565206995131, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
-  m_PrefabInstance: {fileID: 9004059566180269157}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1638201496
 GameObject:
   m_ObjectHideFlags: 0
@@ -1620,6 +1620,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1642439234}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &1781230314 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 9004059565493449595, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
+  m_PrefabInstance: {fileID: 1944624531}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1903606986
 GameObject:
   m_ObjectHideFlags: 0
@@ -1727,7 +1732,7 @@ PrefabInstance:
     - target: {fileID: 4172877997818502735, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: otherPortal
       value: 
-      objectReference: {fileID: 1514077406}
+      objectReference: {fileID: 1437515283}
     - target: {fileID: 4172877997818502735, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: thisPortalScreen
       value: 
@@ -1739,23 +1744,31 @@ PrefabInstance:
     - target: {fileID: 5089726858964894402, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: clipPlane
       value: 
-      objectReference: {fileID: 1514077406}
+      objectReference: {fileID: 1437515283}
     - target: {fileID: 5089726858964894402, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: playerCam
       value: 
       objectReference: {fileID: 1638201498}
+    - target: {fileID: 7224498410275848884, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
+      propertyPath: otherPortal
+      value: 
+      objectReference: {fileID: 1437515283}
+    - target: {fileID: 7224498410275848884, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
+      propertyPath: playerCamTransform
+      value: 
+      objectReference: {fileID: 1638201499}
+    - target: {fileID: 7687061069465544255, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7687061069465544255, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
+      propertyPath: playerCamera
+      value: 
+      objectReference: {fileID: 1638201499}
     - target: {fileID: 9004059565206995077, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: c21ce6673a6d0400cbacd9127f8836ab, type: 2}
-    - target: {fileID: 9004059565206995079, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
-      propertyPath: otherPortalScreen
-      value: 
-      objectReference: {fileID: 1514077406}
-    - target: {fileID: 9004059565206995079, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
-      propertyPath: playerCamTransform
-      value: 
-      objectReference: {fileID: 1638201499}
     - target: {fileID: 9004059565206995128, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_Name
       value: RedPortalScreen
@@ -2233,21 +2246,29 @@ PrefabInstance:
     - target: {fileID: 4172877997818502735, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: otherPortal
       value: 
-      objectReference: {fileID: 1944624532}
+      objectReference: {fileID: 1781230314}
     - target: {fileID: 5089726858964894402, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: clipPlane
       value: 
-      objectReference: {fileID: 1944624532}
+      objectReference: {fileID: 1781230314}
     - target: {fileID: 5089726858964894402, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: playerCam
       value: 
       objectReference: {fileID: 1638201498}
-    - target: {fileID: 9004059565206995079, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
-      propertyPath: otherPortalScreen
+    - target: {fileID: 7224498410275848884, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
+      propertyPath: otherPortal
       value: 
-      objectReference: {fileID: 1944624532}
-    - target: {fileID: 9004059565206995079, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
+      objectReference: {fileID: 1781230314}
+    - target: {fileID: 7224498410275848884, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: playerCamTransform
+      value: 
+      objectReference: {fileID: 1638201499}
+    - target: {fileID: 7687061069465544255, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7687061069465544255, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
+      propertyPath: playerCamera
       value: 
       objectReference: {fileID: 1638201499}
     - target: {fileID: 9004059565206995128, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}

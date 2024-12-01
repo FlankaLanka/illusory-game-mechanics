@@ -23,21 +23,18 @@ public class PortalTeleporter : MonoBehaviour
         }
     }
 
-    public Transform thisPortalScreen;
     public Transform otherPortal;
     [SerializeField] public List<TravelerData> allTravelers;
 
-    private Vector3 initalForward;
 
     private void Awake()
     {
-        initalForward = thisPortalScreen.transform.forward;
         allTravelers = new();
     }
 
     private void FixedUpdate()
     {
-        UpdateTravelersClones(allTravelers, thisPortalScreen.transform, otherPortal);
+        UpdateTravelersClones(allTravelers, transform, otherPortal);
 
         //determine which travelers have moved past the portal plane and need to be teleported
         List<TravelerData> TravelersToRemove = new();
@@ -45,10 +42,10 @@ public class PortalTeleporter : MonoBehaviour
 
         for (int i = 0; i < allTravelersArray.Length; i++)
         {
-            float curDotProduct = Vector3.Dot(allTravelersArray[i].t.position - thisPortalScreen.transform.position, initalForward);
+            float curDotProduct = Vector3.Dot(allTravelersArray[i].t.position - transform.position, transform.forward);
             if (AreOppositeSigns(curDotProduct, allTravelersArray[i].startingDotProduct))
             {
-                Teleport(allTravelersArray[i].t, allTravelersArray[i].t.position - thisPortalScreen.transform.position);
+                Teleport(allTravelersArray[i].t, allTravelersArray[i].t.position - transform.position);
 
                 DeleteClone(allTravelersArray[i], "update"); //arrays allow ref access, was not working with list
                 TravelersToRemove.Add(allTravelersArray[i]);
@@ -59,10 +56,10 @@ public class PortalTeleporter : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        TravelerData newcomer = new TravelerData(other.transform, thisPortalScreen.transform, initalForward);
+        TravelerData newcomer = new TravelerData(other.transform, transform, transform.forward);
 
         //if already in list, return
-        foreach(TravelerData traveler in allTravelers)
+        foreach (TravelerData traveler in allTravelers)
         {
             if (newcomer.t == traveler.t)
                 return;
@@ -79,7 +76,7 @@ public class PortalTeleporter : MonoBehaviour
     {
         Debug.Log("EXITER");
 
-        TravelerData exiter = new TravelerData(other.transform, thisPortalScreen.transform, initalForward);
+        TravelerData exiter = new TravelerData(other.transform, transform, transform.forward);
 
         TravelerData TravelerToRemove = null;
         foreach (TravelerData traveler in allTravelers)
@@ -116,15 +113,15 @@ public class PortalTeleporter : MonoBehaviour
         //cloneMeshRenderer.enabled = false;
 
         //get relative transforms
-        MatchTransformRelative(newcomer.t, thisPortalScreen.transform, newclone.transform, otherPortal);
+        MatchTransformRelative(newcomer.t, transform, newclone.transform, otherPortal);
 
         //set clip shader
-        Vector3 planeDirection = initalForward;
-        if (Vector3.Dot(newcomer.t.position - thisPortalScreen.position, initalForward) > 0)
+        Vector3 planeDirection = transform.forward;
+        if (Vector3.Dot(newcomer.t.position - transform.position, transform.forward) > 0)
             planeDirection = -planeDirection;
 
         newcomer.t.GetComponent<MeshRenderer>().material.SetVector("_PlanePoint",
-            new Vector4(thisPortalScreen.position.x, thisPortalScreen.position.y, thisPortalScreen.position.z, 0));
+            new Vector4(transform.position.x, transform.position.y, transform.position.z, 0));
         newcomer.t.GetComponent<MeshRenderer>().material.SetVector("_PlaneNormal",
             new Vector4(planeDirection.x, planeDirection.y, planeDirection.z, 0));
         newcomer.t.GetComponent<MeshRenderer>().material.SetInt("_EnableSlice", 1);
@@ -179,7 +176,7 @@ public class PortalTeleporter : MonoBehaviour
             controller.enabled = false;
 
         //local space of object to current portal
-        Matrix4x4 travelerToPortalA = thisPortalScreen.transform.worldToLocalMatrix * traveler.localToWorldMatrix;
+        Matrix4x4 travelerToPortalA = transform.worldToLocalMatrix * traveler.localToWorldMatrix;
         //world space of object if it were local to out portal
         Matrix4x4 travelerNewWorldMatrix = otherPortal.localToWorldMatrix * travelerToPortalA;
         traveler.position = travelerNewWorldMatrix.GetPosition();
