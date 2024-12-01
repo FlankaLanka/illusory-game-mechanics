@@ -109,8 +109,6 @@ GameObject:
   - component: {fileID: 9004059565206995076}
   - component: {fileID: 9004059565206995077}
   - component: {fileID: 9004059565206995079}
-  - component: {fileID: 9004059565206995078}
-  - component: {fileID: 6241218053149870030}
   m_Layer: 6
   m_Name: PortalScreen
   m_TagString: Untagged
@@ -127,7 +125,7 @@ Transform:
   m_GameObject: {fileID: 9004059565206995128}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 4, y: 2.5, z: 0.05}
+  m_LocalScale: {x: 4, y: 2.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 9004059565493449595}
@@ -140,7 +138,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9004059565206995128}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &9004059565206995077
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -198,33 +196,6 @@ MonoBehaviour:
   playerCamTransform: {fileID: 0}
   portalCamTransform: {fileID: 9004059566220109857}
   otherPortalScreen: {fileID: 0}
---- !u!65 &9004059565206995078
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9004059565206995128}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &6241218053149870030
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9004059565206995128}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a34cd2e2bd34a4d6c9d30e21d6c629ac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  otherPortal: {fileID: 0}
-  allTravelers: []
 --- !u!1 &9004059565493449592
 GameObject:
   m_ObjectHideFlags: 0
@@ -234,6 +205,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9004059565493449595}
+  - component: {fileID: 8612350032442336765}
+  - component: {fileID: 4172877997818502735}
   m_Layer: 0
   m_Name: Portal
   m_TagString: Untagged
@@ -259,6 +232,34 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &8612350032442336765
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9004059565493449592}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 4, y: 2.5, z: 0.75}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4172877997818502735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9004059565493449592}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a34cd2e2bd34a4d6c9d30e21d6c629ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  thisPortalScreen: {fileID: 9004059565206995131}
+  otherPortal: {fileID: 0}
+  allTravelers: []
 --- !u!1 &9004059565931331492
 GameObject:
   m_ObjectHideFlags: 0

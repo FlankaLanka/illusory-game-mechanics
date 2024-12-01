@@ -8,7 +8,7 @@ using static UnityEngine.GraphicsBuffer;
 public class PortalTeleporter : MonoBehaviour
 {
     [System.Serializable]
-    public struct TravelerData
+    public class TravelerData
     {
         public Transform t;
         public float startingDotProduct;
@@ -23,6 +23,7 @@ public class PortalTeleporter : MonoBehaviour
         }
     }
 
+    public Transform thisPortalScreen;
     public Transform otherPortal;
     [SerializeField] public List<TravelerData> allTravelers;
 
@@ -30,13 +31,13 @@ public class PortalTeleporter : MonoBehaviour
 
     private void Awake()
     {
-        initalForward = transform.forward;
+        initalForward = thisPortalScreen.transform.forward;
         allTravelers = new();
     }
 
     private void Update()
     {
-        UpdateTravelersClones(allTravelers, transform, otherPortal);
+        UpdateTravelersClones(allTravelers, thisPortalScreen.transform, otherPortal);
 
 
         List<TravelerData> TravelersToRemove = new();
@@ -44,12 +45,12 @@ public class PortalTeleporter : MonoBehaviour
 
         for (int i = 0; i < allTravelersArray.Length; i++)
         {
-            float curDotProduct = Vector3.Dot(allTravelersArray[i].t.position - transform.position, initalForward);
+            float curDotProduct = Vector3.Dot(allTravelersArray[i].t.position - thisPortalScreen.transform.position, initalForward);
             if (AreOppositeSigns(curDotProduct, allTravelersArray[i].startingDotProduct))
             {
-                Teleport(allTravelersArray[i].t, allTravelersArray[i].t.position - transform.position);
+                Teleport(allTravelersArray[i].t, allTravelersArray[i].t.position - thisPortalScreen.transform.position);
 
-                DeleteClone(ref allTravelersArray[i], "update"); //arrays allow ref access, was not working with list
+                DeleteClone(allTravelersArray[i], "update"); //arrays allow ref access, was not working with list
                 TravelersToRemove.Add(allTravelersArray[i]);
             }
         }
@@ -60,7 +61,7 @@ public class PortalTeleporter : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        TravelerData newcomer = new TravelerData(other.transform, transform, initalForward);
+        TravelerData newcomer = new TravelerData(other.transform, thisPortalScreen.transform, initalForward);
 
         //if already in list, return
         foreach(TravelerData traveler in allTravelers)
@@ -69,9 +70,9 @@ public class PortalTeleporter : MonoBehaviour
                 return;
         }
 
-        if(other.tag != "Player" && other.GetComponent<ClonableObjectSliceMaterialSetter>())
+        if(other.tag != "Player" && other.GetComponent<ClonableObjectSliceMaterialSetter>() != null)
         {
-            CreateClone(ref newcomer);
+            CreateClone(newcomer);
         }
         allTravelers.Add(newcomer);
     }
@@ -80,9 +81,9 @@ public class PortalTeleporter : MonoBehaviour
     {
         Debug.Log("EXITER");
 
-        TravelerData exiter = new TravelerData(other.transform, transform, initalForward);
+        TravelerData exiter = new TravelerData(other.transform, thisPortalScreen.transform, initalForward);
 
-        TravelerData? TravelerToRemove = null;
+        TravelerData TravelerToRemove = null;
         foreach (TravelerData traveler in allTravelers)
         {
             if (exiter.t != traveler.t)
@@ -93,18 +94,18 @@ public class PortalTeleporter : MonoBehaviour
 
         //there are 2 possible conditions where a traveler is removed, either they teleported to the other portal (handled in Update()),
         //or they left they way they came in, never teleporting. This case handles for latter.
-        if (TravelerToRemove.HasValue && allTravelers.Contains(TravelerToRemove.Value))
+        if (TravelerToRemove != null && allTravelers.Contains(TravelerToRemove))
         {
-            DeleteClone(ref exiter, "trigger");
-            allTravelers.Remove(TravelerToRemove.Value);
+            DeleteClone(TravelerToRemove, "trigger");
+            allTravelers.Remove(TravelerToRemove);
         }
     }
 
-    private void CreateClone(ref TravelerData newcomer)
+    private void CreateClone(TravelerData newcomer)
     {
         Debug.Log("CALLED CREATECLONE");
 
-        GameObject newclone = Instantiate(new GameObject(name: newcomer.t.name + " (portal clone)"));
+        GameObject newclone = new GameObject(name: newcomer.t.name + " (portal clone)");
         newcomer.clone = newclone;
 
         MeshFilter cloneMeshFilter = newclone.AddComponent<MeshFilter>();
@@ -115,16 +116,20 @@ public class PortalTeleporter : MonoBehaviour
         //cloneMeshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         cloneMeshRenderer.receiveShadows = false;
 
-        MatchTransformRelative(newcomer.t, transform, newclone.transform, otherPortal);
+        MatchTransformRelative(newcomer.t, thisPortalScreen.transform, newclone.transform, otherPortal);
     }
 
 
-    private void DeleteClone(ref TravelerData exiter, string here)
+    private void DeleteClone(TravelerData exiter, string here)
     {
         Debug.Log("CALLED DELETECLONE from " + here);
+        if(exiter.clone == null)
+        {
+            Debug.Log("No clone exists");
+            return;
+        }
 
-        if (exiter.clone != null)
-            Destroy(exiter.clone.gameObject);
+        Destroy(exiter.clone.gameObject);
         exiter.clone = null;
     }
 
@@ -157,7 +162,7 @@ public class PortalTeleporter : MonoBehaviour
             controller.enabled = false;
 
         //local space of object to current portal
-        Matrix4x4 travelerToPortalA = transform.worldToLocalMatrix * traveler.localToWorldMatrix;
+        Matrix4x4 travelerToPortalA = thisPortalScreen.transform.worldToLocalMatrix * traveler.localToWorldMatrix;
         //world space of object if it were local to out portal
         Matrix4x4 travelerNewWorldMatrix = otherPortal.localToWorldMatrix * travelerToPortalA;
         traveler.position = travelerNewWorldMatrix.GetPosition();
