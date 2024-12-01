@@ -7,17 +7,14 @@ using UnityEngine.Assertions;
 [RequireComponent(typeof(MeshRenderer))]
 public class ClonableObjectSliceMaterialSetter : MonoBehaviour
 {
-    public Mesh mesh;
-
     public Material sliceMat;
+    public GameObject clone = null;
 
     private MeshRenderer m;
 
     // Start is called before the first frame update
     void Start()
     {
-        mesh = GetComponent<MeshFilter>().mesh;
-
         m = GetComponent<MeshRenderer>();
         Assert.IsNotNull(sliceMat);
         m.material = new Material(sliceMat);
