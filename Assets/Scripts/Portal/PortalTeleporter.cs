@@ -48,7 +48,7 @@ public class PortalTeleporter : MonoBehaviour
             {
                 Teleport(trav.t, trav.t.position - transform.position);
 
-                DeleteClone(trav, "update"); //arrays allow ref access, was not working with list
+                DeleteClone(trav, "update");
 
                 //create a new traveler here before teleporting, dont want to rely on ontriggerenter to register a traveler
                 PortalEnterEvent(trav.t, otherPortal.GetComponent<PortalTeleporter>(), "update");
@@ -140,6 +140,10 @@ public class PortalTeleporter : MonoBehaviour
         cloneMeshRenderer.material.SetVector("_PlanePoint", new Vector4(portalB.position.x, portalB.position.y, portalB.position.z, 0));
         cloneMeshRenderer.material.SetVector("_PlaneNormal", new Vector4(-planeDirectionPortalB.x, -planeDirectionPortalB.y, -planeDirectionPortalB.z, 0));
         cloneMeshRenderer.material.SetInt("_EnableSlice", 1);
+
+        //edge case for player, dont want clone blocking camera
+        if (newcomer.t.tag == "Player")
+            newcomer.clone.layer = LayerMask.NameToLayer("PlayerClone");
     }
 
 

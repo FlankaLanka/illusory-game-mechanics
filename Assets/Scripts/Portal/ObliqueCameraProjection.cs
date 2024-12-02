@@ -8,8 +8,8 @@ public class ObliqueCameraProjection : MonoBehaviour
     public Transform clipPlane; // The new near plane
     public bool DisableObliqueProjection;
 
-    [Range(-0.1f,0.2f)]
-    public float obliqueOffset; //set the clip plane slightly behind portal to remove floating precision problems, set to 0 to see problem
+    [Range(-0.1f, 0.2f)]
+    public float obliqueOffset; // Offset to avoid precision issues
 
     private Camera cam;
 
@@ -18,7 +18,7 @@ public class ObliqueCameraProjection : MonoBehaviour
         cam = GetComponent<Camera>();
     }
 
-    void Update()
+    void LateUpdate()
     {
         ApplyObliqueCameraProjection();
     }
@@ -31,19 +31,19 @@ public class ObliqueCameraProjection : MonoBehaviour
             return;
         }
 
-        Vector3 dir = cam.transform.position - clipPlane.position;
+        // Calculate plane normal and position in world space
+        Vector3 dirToPlane = cam.transform.position - clipPlane.position;
         Vector3 planeNormal = clipPlane.forward;
         Vector3 planePosition = clipPlane.position;
-        if (Vector3.Dot(clipPlane.forward, dir) > 0)
+
+        // Adjust plane position based on camera's relative position
+        if (Vector3.Dot(planeNormal, dirToPlane) > 0)
         {
             planeNormal = -planeNormal;
-            planePosition -= planeNormal * obliqueOffset;
         }
-        else
-        {
-            planePosition -= planeNormal * obliqueOffset;
-        }
+        planePosition -= planeNormal * obliqueOffset;
 
+        // Apply the adjusted projection matrix
         cam.ResetProjectionMatrix();
         Vector4 plane = CameraSpacePlane(planePosition, planeNormal);
         Matrix4x4 projection = cam.projectionMatrix;
@@ -53,11 +53,13 @@ public class ObliqueCameraProjection : MonoBehaviour
 
     private Vector4 CameraSpacePlane(Vector3 position, Vector3 normal)
     {
-        Vector3 cameraPosition = cam.worldToCameraMatrix.MultiplyPoint(position);
-        Vector3 cameraNormal = cam.worldToCameraMatrix.MultiplyVector(normal).normalized;
+        // Transform plane position and normal to camera space
+        Vector3 cameraSpacePos = cam.worldToCameraMatrix.MultiplyPoint(position);
+        Vector3 cameraSpaceNormal = cam.worldToCameraMatrix.MultiplyVector(normal).normalized;
 
-        float distance = -Vector3.Dot(cameraPosition, cameraNormal);
-        return new Vector4(cameraNormal.x, cameraNormal.y, cameraNormal.z, distance);
+        // Calculate the plane equation in camera space
+        float distance = -Vector3.Dot(cameraSpacePos, cameraSpaceNormal);
+        return new Vector4(cameraSpaceNormal.x, cameraSpaceNormal.y, cameraSpaceNormal.z, distance);
     }
 
     private void MakeProjectionOblique(ref Matrix4x4 projection, Vector4 plane)
@@ -70,11 +72,11 @@ public class ObliqueCameraProjection : MonoBehaviour
             (1.0f + projection[10]) / projection[14]
         );
 
+        // Scale the plane vector to project into clip space
         Vector4 c = plane * (2.0f / Vector4.Dot(plane, q));
         projection[2] = c.x;
         projection[6] = c.y;
         projection[10] = c.z + 1.0f;
         projection[14] = c.w;
     }
-
 }

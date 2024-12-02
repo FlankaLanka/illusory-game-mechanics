@@ -5,9 +5,6 @@ using UnityEngine;
 
 public class PortalScreenTransform : MonoBehaviour
 {
-    public Mesh cube;
-    public Mesh quad;
-
     public Transform playerCamera;
     public Transform portalScreen;
     [Range(0.02f,1f)]
@@ -15,12 +12,6 @@ public class PortalScreenTransform : MonoBehaviour
 
     [Range(-1f, 1f)]
     public float offset = 0.02f; //instead of mapping screen face to portal center, make some room
-
-
-    private void OnEnable()
-    {
-        portalScreen.GetComponent<MeshFilter>().mesh = cube;
-    }
 
     void Update()
     {
@@ -38,13 +29,5 @@ public class PortalScreenTransform : MonoBehaviour
             portalScreen.localPosition = new Vector3(portalScreen.localPosition.x, portalScreen.localPosition.y, thickness / 2 - offset);
         }
         portalScreen.localScale = new Vector3(portalScreen.localScale.x, portalScreen.localScale.y, thickness);
-    }
-
-    private void OnDisable()
-    {
-        //restore default
-        portalScreen.GetComponent<MeshFilter>().mesh = quad;
-        portalScreen.localPosition = Vector3.zero;
-        portalScreen.localScale = new Vector3(portalScreen.localScale.x, portalScreen.localScale.y, 1);
     }
 }
