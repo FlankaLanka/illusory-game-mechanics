@@ -7,25 +7,47 @@ using UnityEngine;
 public class ObjectMover : MonoBehaviour
 {
     public Vector3 vel;
+
+    private Vector3 originalVel;
     private Matrix4x4 originalTransform;
-    // Start is called before the first frame update
+    private Rigidbody rb;
+    private bool isPaused = false;
+
     void Start()
     {
-        GetComponent<Rigidbody>().velocity = vel;
+        originalVel = vel;
         originalTransform = transform.localToWorldMatrix;
+        rb = GetComponent<Rigidbody>();
 
-        GetComponent<Rigidbody>().velocity = vel;
-
+        Debug.Log("Press R to reset cube, T to pause cube.");
     }
 
-    // Update is called once per frame
     void Update()
     {
-        GetComponent<Rigidbody>().velocity = vel;
-
         if(Input.GetKeyDown(KeyCode.R))
         {
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = false;
+
+            vel = originalVel;
             transform.SetPositionAndRotation(originalTransform.GetPosition(), originalTransform.rotation);
+            return;
         }
+        else if(Input.GetKeyDown(KeyCode.T))
+        {
+            if(isPaused)
+            {
+                rb.isKinematic = false;
+                isPaused = false;
+            }
+            else
+            {
+                rb.isKinematic = true;
+                isPaused = true;
+            }
+        }
+
+        rb.velocity = vel;
     }
 }

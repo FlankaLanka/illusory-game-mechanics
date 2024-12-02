@@ -51,7 +51,7 @@ public class PortalTeleporter : MonoBehaviour
                 DeleteClone(trav, "update");
 
                 //create a new traveler here before teleporting, dont want to rely on ontriggerenter to register a traveler
-                PortalEnterEvent(trav.t, otherPortal.GetComponent<PortalTeleporter>(), "update");
+                PortalEnterEvent(trav.t, otherPortal.GetComponent<PortalTeleporter>(), this, "update");
 
                 TravelersToRemove.Add(trav);
             }
@@ -59,7 +59,7 @@ public class PortalTeleporter : MonoBehaviour
         allTravelers.RemoveAll(item => TravelersToRemove.Contains(item));
     }
 
-    public void PortalEnterEvent(Transform curTraveler, PortalTeleporter portalToEnter, string here)
+    public void PortalEnterEvent(Transform curTraveler, PortalTeleporter portalToEnter, PortalTeleporter theOtherPortal, string here)
     {
         TravelerData newcomer = new TravelerData(curTraveler, portalToEnter.transform, portalToEnter.transform.forward);
         //if already in list, return
@@ -74,10 +74,19 @@ public class PortalTeleporter : MonoBehaviour
         portalToEnter.transform.GetComponent<PortalCameraTransform>().MatchTransformRelative();
         portalToEnter.thisPortalCamera.GetComponent<ObliqueCameraProjection>().ApplyObliqueCameraProjection();
 
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //finally invoke events
         if (newcomer.t.GetComponent<ClonableObjectSliceMaterialSetter>() != null)
         {
-            CreateClone(newcomer, portalToEnter.transform, portalToEnter == this ? otherPortal : transform, here);
+            CreateClone(newcomer, portalToEnter.transform, theOtherPortal.transform, here);
+        }
+
+        //hardcode velocity change for now if called via update (teleported)
+        if (newcomer.t.GetComponent<ObjectMover>() && here == "update")
+        {
+            ObjectMover mover = newcomer.t.GetComponent<ObjectMover>();
+            Vector3 localVelocity = theOtherPortal.transform.InverseTransformDirection(mover.vel);
+            mover.vel = portalToEnter.transform.TransformDirection(localVelocity);
         }
 
         portalToEnter.allTravelers.Add(newcomer);
@@ -85,7 +94,7 @@ public class PortalTeleporter : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        PortalEnterEvent(other.transform, this, "trigger");
+        PortalEnterEvent(other.transform, this, otherPortal.GetComponent<PortalTeleporter>(), "trigger");
     }
 
     private void OnTriggerExit(Collider other)
@@ -107,9 +116,9 @@ public class PortalTeleporter : MonoBehaviour
         }
     }
 
-    private void CreateClone(TravelerData newcomer, Transform portalA, Transform portalB, string here)
+    private void CreateClone(TravelerData newcomer, Transform portalToEnter, Transform clonesPortal, string here)
     {
-        Debug.Log("CALLED CREATECLONE from " + here);
+        //Debug.Log("CALLED CREATECLONE from " + here);
 
         GameObject newclone = new GameObject(name: newcomer.t.name + " (portal clone)");
         newcomer.clone = newclone;
@@ -122,22 +131,22 @@ public class PortalTeleporter : MonoBehaviour
         //cloneMeshRenderer.enabled = false;
 
         //get relative transforms
-        MatchTransformRelative(newcomer.t, portalA, newclone.transform, portalB);
+        MatchTransformRelative(newcomer.t, portalToEnter, newclone.transform, clonesPortal);
 
         //set clip shader
-        Vector3 planeDirectionPortalA = portalA.forward;
-        Vector3 planeDirectionPortalB = portalB.forward;
-        if (Vector3.Dot(newcomer.t.position - portalA.position, portalA.forward) > 0)
+        Vector3 planeDirectionPortalA = portalToEnter.forward;
+        Vector3 planeDirectionPortalB = clonesPortal.forward;
+        if (Vector3.Dot(newcomer.t.position - portalToEnter.position, portalToEnter.forward) > 0)
         {
             planeDirectionPortalA = -planeDirectionPortalA;
             planeDirectionPortalB = -planeDirectionPortalB;
         }
 
-        newcomer.t.GetComponent<MeshRenderer>().material.SetVector("_PlanePoint", new Vector4(portalA.position.x, portalA.position.y, portalA.position.z, 0));
+        newcomer.t.GetComponent<MeshRenderer>().material.SetVector("_PlanePoint", new Vector4(portalToEnter.position.x, portalToEnter.position.y, portalToEnter.position.z, 0));
         newcomer.t.GetComponent<MeshRenderer>().material.SetVector("_PlaneNormal", new Vector4(planeDirectionPortalA.x, planeDirectionPortalA.y, planeDirectionPortalA.z, 0));
         newcomer.t.GetComponent<MeshRenderer>().material.SetInt("_EnableSlice", 1);
 
-        cloneMeshRenderer.material.SetVector("_PlanePoint", new Vector4(portalB.position.x, portalB.position.y, portalB.position.z, 0));
+        cloneMeshRenderer.material.SetVector("_PlanePoint", new Vector4(clonesPortal.position.x, clonesPortal.position.y, clonesPortal.position.z, 0));
         cloneMeshRenderer.material.SetVector("_PlaneNormal", new Vector4(-planeDirectionPortalB.x, -planeDirectionPortalB.y, -planeDirectionPortalB.z, 0));
         cloneMeshRenderer.material.SetInt("_EnableSlice", 1);
 
@@ -149,10 +158,10 @@ public class PortalTeleporter : MonoBehaviour
 
     private void DeleteClone(TravelerData exiter, string here)
     {
-        Debug.Log("CALLED DELETECLONE from " + here);
+        //Debug.Log("CALLED DELETECLONE from " + here);
         if(exiter.clone == null)
         {
-            Debug.Log("No clone exists");
+            Debug.Log("No clone exists for this travelling object.");
             return;
         }
 
@@ -196,7 +205,7 @@ public class PortalTeleporter : MonoBehaviour
         traveler.position = travelerNewWorldMatrix.GetPosition();
         traveler.rotation = travelerNewWorldMatrix.rotation;
         traveler.localScale = travelerNewWorldMatrix.lossyScale;
-        Debug.Log("TELEPORTED");
+        //Debug.Log("TELEPORTED");
 
         if (controller)
             controller.enabled = true;
