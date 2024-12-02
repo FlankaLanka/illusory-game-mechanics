@@ -13,6 +13,9 @@ public class ObjectMover : MonoBehaviour
     {
         GetComponent<Rigidbody>().velocity = vel;
         originalTransform = transform.localToWorldMatrix;
+
+        GetComponent<Rigidbody>().velocity = vel;
+
     }
 
     // Update is called once per frame
