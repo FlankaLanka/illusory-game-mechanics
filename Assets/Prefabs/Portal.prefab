@@ -244,6 +244,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   otherPortal: {fileID: 0}
+  thisPortalCamera: {fileID: 9004059566220109857}
   allTravelers: []
 --- !u!114 &7224498410275848884
 MonoBehaviour:
@@ -272,12 +273,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24056b2695eb140b09bbd15be4f04ce1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cube: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  quad: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   playerCamera: {fileID: 0}
   portalScreen: {fileID: 9004059565206995131}
   thickness: 0.095
   offset: 0
-  cube: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-  quad: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &9004059565931331492
 GameObject:
   m_ObjectHideFlags: 0

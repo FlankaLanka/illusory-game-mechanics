@@ -20,6 +20,11 @@ public class ObliqueCameraProjection : MonoBehaviour
 
     void Update()
     {
+        ApplyObliqueCameraProjection();
+    }
+
+    public void ApplyObliqueCameraProjection()
+    {
         if (clipPlane == null || DisableObliqueProjection)
         {
             cam.ResetProjectionMatrix();

@@ -1759,7 +1759,7 @@ PrefabInstance:
       objectReference: {fileID: 1638201499}
     - target: {fileID: 7687061069465544255, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7687061069465544255, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: playerCamera
@@ -2265,7 +2265,7 @@ PrefabInstance:
       objectReference: {fileID: 1638201499}
     - target: {fileID: 7687061069465544255, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7687061069465544255, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: playerCamera

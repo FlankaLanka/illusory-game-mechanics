@@ -24,6 +24,11 @@ public class PortalScreenTransform : MonoBehaviour
 
     void Update()
     {
+        FixScreenCubeSideRelativeToPlayer();
+    }
+
+    public void FixScreenCubeSideRelativeToPlayer()
+    {
         if (Vector3.Dot(transform.forward, playerCamera.position - transform.position) > 0)
         {
             portalScreen.localPosition = new Vector3(portalScreen.localPosition.x, portalScreen.localPosition.y, -thickness / 2 + offset);

@@ -5,6 +5,8 @@ using UnityEditor;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 
+[RequireComponent(typeof(PortalScreenTransform))]
+[RequireComponent(typeof(PortalCameraTransform))]
 public class PortalTeleporter : MonoBehaviour
 {
     [System.Serializable]
@@ -24,6 +26,7 @@ public class PortalTeleporter : MonoBehaviour
     }
 
     public Transform otherPortal;
+    public Transform thisPortalCamera;
     [SerializeField] public List<TravelerData> allTravelers;
 
 
@@ -32,7 +35,7 @@ public class PortalTeleporter : MonoBehaviour
         allTravelers = new();
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         UpdateTravelersClones(allTravelers, transform, otherPortal);
 
@@ -47,6 +50,9 @@ public class PortalTeleporter : MonoBehaviour
             {
                 Teleport(allTravelersArray[i].t, allTravelersArray[i].t.position - transform.position);
 
+                //create a new traveler here before teleporting, dont want to rely on ontriggerenter to register a traveler
+                PortalEnterEvent(allTravelersArray[i].t, otherPortal.GetComponent<PortalTeleporter>());
+
                 DeleteClone(allTravelersArray[i], "update"); //arrays allow ref access, was not working with list
                 TravelersToRemove.Add(allTravelersArray[i]);
             }
@@ -54,22 +60,32 @@ public class PortalTeleporter : MonoBehaviour
         allTravelers.RemoveAll(item => TravelersToRemove.Contains(item));
     }
 
-    private void OnTriggerEnter(Collider other)
+    public void PortalEnterEvent(Transform curTraveler, PortalTeleporter portalToEnter)
     {
-        TravelerData newcomer = new TravelerData(other.transform, transform, transform.forward);
-
+        TravelerData newcomer = new TravelerData(curTraveler, portalToEnter.transform, portalToEnter.transform.forward);
         //if already in list, return
-        foreach (TravelerData traveler in allTravelers)
+        foreach (TravelerData traveler in portalToEnter.allTravelers)
         {
             if (newcomer.t == traveler.t)
                 return;
         }
 
-        if(other.tag != "Player" && other.GetComponent<ClonableObjectSliceMaterialSetter>() != null)
+        //fix screen orientation and camera again for edge cases
+        portalToEnter.transform.GetComponent<PortalScreenTransform>().FixScreenCubeSideRelativeToPlayer();
+        portalToEnter.transform.GetComponent<PortalCameraTransform>().MatchTransformRelative();
+        portalToEnter.thisPortalCamera.GetComponent<ObliqueCameraProjection>().ApplyObliqueCameraProjection();
+
+        //perform necessary logic
+        if (newcomer.t.tag != "Player" && newcomer.t.GetComponent<ClonableObjectSliceMaterialSetter>() != null)
         {
             CreateClone(newcomer);
         }
-        allTravelers.Add(newcomer);
+        portalToEnter.allTravelers.Add(newcomer);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        PortalEnterEvent(other.transform, this);
     }
 
     private void OnTriggerExit(Collider other)
