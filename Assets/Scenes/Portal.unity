@@ -706,7 +706,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &788973097
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1348,7 +1348,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1321897121}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.1628, z: 0.2}
+  m_LocalPosition: {x: 0, y: 0.1628, z: 28.5}
   m_LocalScale: {x: 1.74, y: 2, z: 30.18}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1511,7 +1511,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 375
+    m_Bits: 196983
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -1744,6 +1744,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 126139595045033283, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4172877997818502735, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: otherPortal
       value: 
@@ -1792,6 +1796,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: RedPortalScreen
       objectReference: {fileID: 0}
+    - target: {fileID: 9004059565206995128, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
+      propertyPath: m_Layer
+      value: 17
+      objectReference: {fileID: 0}
     - target: {fileID: 9004059565493449592, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_Name
       value: RedPortal
@@ -1806,7 +1814,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9004059565493449595, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -7.1
+      value: 3.94
       objectReference: {fileID: 0}
     - target: {fileID: 9004059565493449595, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1814,7 +1822,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9004059565493449595, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.38
+      value: -1.5
       objectReference: {fileID: 0}
     - target: {fileID: 9004059565493449595, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1854,7 +1862,7 @@ PrefabInstance:
       objectReference: {fileID: 8400000, guid: 7c827d7f7665f48a7bc918d951d84b55, type: 2}
     - target: {fileID: 9004059566220109856, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_CullingMask.m_Bits
-      value: 183
+      value: 131767
       objectReference: {fileID: 0}
     - target: {fileID: 9004059566220109862, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_Name
@@ -2274,6 +2282,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 126139595045033283, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4172877997818502735, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: otherPortal
       value: 
@@ -2306,6 +2318,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: BluePortalScreen
       objectReference: {fileID: 0}
+    - target: {fileID: 9004059565206995128, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
+      propertyPath: m_Layer
+      value: 16
+      objectReference: {fileID: 0}
     - target: {fileID: 9004059565493449592, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_Name
       value: BluePortal
@@ -2320,7 +2336,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9004059565493449595, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 10.85
+      value: 6.83
       objectReference: {fileID: 0}
     - target: {fileID: 9004059565493449595, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2328,11 +2344,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9004059565493449595, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.07
+      value: 4.53
       objectReference: {fileID: 0}
     - target: {fileID: 9004059565493449595, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.9350425
+      value: 0.9710927
       objectReference: {fileID: 0}
     - target: {fileID: 9004059565493449595, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_LocalRotation.x
@@ -2340,7 +2356,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9004059565493449595, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.3545358
+      value: 0.2387029
       objectReference: {fileID: 0}
     - target: {fileID: 9004059565493449595, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_LocalRotation.z
@@ -2352,7 +2368,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9004059565493449595, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 41.53
+      value: 27.62
       objectReference: {fileID: 0}
     - target: {fileID: 9004059565493449595, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -2360,7 +2376,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9004059566220109856, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_CullingMask.m_Bits
-      value: 183
+      value: 66231
       objectReference: {fileID: 0}
     - target: {fileID: 9004059566220109862, guid: 3558c35de4e2d4f26aedb870d10a6407, type: 3}
       propertyPath: m_Name
