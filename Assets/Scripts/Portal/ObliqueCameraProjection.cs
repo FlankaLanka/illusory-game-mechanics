@@ -1,6 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.Device;
+using UnityEngine.Rendering;
+using UnityEngine.UIElements;
 
 [RequireComponent(typeof(Camera))]
 public class ObliqueCameraProjection : MonoBehaviour
@@ -13,15 +17,71 @@ public class ObliqueCameraProjection : MonoBehaviour
 
     private Camera cam;
 
-    void Start()
+    [Header("Recursive Portals")]
+
+    [Range(0, 5)]
+    public int recursionLimit = 3;
+
+    public Transform playerCam;
+    public Transform thisPortal;
+    public Transform otherPortal;
+    //public GameObject[] recursiveTracker; //for debug to visualize the transform of recursive viewpoints, attach cubes, for example, to this
+
+    void Awake()
     {
         cam = GetComponent<Camera>();
     }
 
-    void LateUpdate()
+    private void Update()
     {
+        CalculateRecursivePortals();
         ApplyObliqueCameraProjection();
     }
+
+    void LatddeUpdate()
+    {
+        if (clipPlane == null || DisableObliqueProjection)
+        {
+            cam.ResetProjectionMatrix();
+            return;
+        }
+        ApplyObliqueCameraProjection();
+    }
+
+
+    public void CalculateRecursivePortals()
+    {
+        Matrix4x4 originalMatrix = transform.localToWorldMatrix;
+        RenderFromPerspective(recursionLimit);
+        transform.SetPositionAndRotation(originalMatrix.GetColumn(3), originalMatrix.rotation);
+    }
+
+    //iteration goes from last to first
+    private void RenderFromPerspective(int iterations)
+    {
+        Matrix4x4 localToWorldMatrix = playerCam.transform.localToWorldMatrix;
+        Matrix4x4[] matrices = new Matrix4x4[iterations];
+
+        for (int i = 0; i < recursionLimit; i++)
+        {
+            localToWorldMatrix = otherPortal.localToWorldMatrix * thisPortal.worldToLocalMatrix * localToWorldMatrix;
+            matrices[i] = localToWorldMatrix;
+        }
+
+        for (int i = recursionLimit - 1; i >= 0; i--)
+        {
+            transform.SetPositionAndRotation(matrices[i].GetColumn(3), matrices[i].rotation);
+
+            //for debug
+            //if (i < recursiveTracker.Length && recursiveTracker[i] != null)
+            //    recursiveTracker[i].transform.SetPositionAndRotation(matrices[i].GetColumn(3), matrices[i].rotation);
+
+            ApplyObliqueCameraProjection();
+            cam.Render();
+        }
+
+    }
+
 
     public void ApplyObliqueCameraProjection()
     {
