@@ -34,20 +34,13 @@ public class ObliqueCameraProjection : MonoBehaviour
 
     private void Update()
     {
-        CalculateRecursivePortals();
         ApplyObliqueCameraProjection();
     }
 
-    void LatddeUpdate()
+    private void LateUpdate()
     {
-        if (clipPlane == null || DisableObliqueProjection)
-        {
-            cam.ResetProjectionMatrix();
-            return;
-        }
-        ApplyObliqueCameraProjection();
+        CalculateRecursivePortals();
     }
-
 
     public void CalculateRecursivePortals()
     {
@@ -76,7 +69,7 @@ public class ObliqueCameraProjection : MonoBehaviour
             //if (i < recursiveTracker.Length && recursiveTracker[i] != null)
             //    recursiveTracker[i].transform.SetPositionAndRotation(matrices[i].GetColumn(3), matrices[i].rotation);
 
-            ApplyObliqueCameraProjection();
+            //ApplyObliqueCameraProjection();
             cam.Render();
         }
 

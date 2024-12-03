@@ -126,9 +126,10 @@ public class PortalTeleporter : MonoBehaviour
         MeshFilter cloneMeshFilter = newclone.AddComponent<MeshFilter>();
         cloneMeshFilter.mesh = newcomer.t.GetComponent<MeshFilter>().mesh;
         MeshRenderer cloneMeshRenderer = newclone.AddComponent<MeshRenderer>();
-        cloneMeshRenderer.material = new Material(newcomer.t.GetComponent<MeshRenderer>().material);
-        cloneMeshRenderer.receiveShadows = false;
-        //cloneMeshRenderer.enabled = false;
+        MeshRenderer mainMeshRenderer = newcomer.t.GetComponent<MeshRenderer>();
+        cloneMeshRenderer.material = new Material(mainMeshRenderer.material);
+        cloneMeshRenderer.receiveShadows = mainMeshRenderer.receiveShadows;
+        cloneMeshRenderer.shadowCastingMode = mainMeshRenderer.shadowCastingMode;
 
         //get relative transforms
         MatchTransformRelative(newcomer.t, portalToEnter, newclone.transform, clonesPortal);
@@ -149,10 +150,6 @@ public class PortalTeleporter : MonoBehaviour
         cloneMeshRenderer.material.SetVector("_PlanePoint", new Vector4(clonesPortal.position.x, clonesPortal.position.y, clonesPortal.position.z, 0));
         cloneMeshRenderer.material.SetVector("_PlaneNormal", new Vector4(-planeDirectionPortalB.x, -planeDirectionPortalB.y, -planeDirectionPortalB.z, 0));
         cloneMeshRenderer.material.SetInt("_EnableSlice", 1);
-
-        //edge case for player, dont want clone blocking camera
-        if (newcomer.t.tag == "Player")
-            newcomer.clone.layer = LayerMask.NameToLayer("PlayerClone");
     }
 
 

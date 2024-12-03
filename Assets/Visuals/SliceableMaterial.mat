@@ -63,7 +63,7 @@ Material:
     m_Floats:
     - _BUILTIN_AlphaClip: 1
     - _BUILTIN_Blend: 0
-    - _BUILTIN_CullMode: 0
+    - _BUILTIN_CullMode: 2
     - _BUILTIN_DstBlend: 0
     - _BUILTIN_QueueControl: 0
     - _BUILTIN_QueueOffset: 0
@@ -80,6 +80,7 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
+    - _IsClone: 0
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
@@ -91,9 +92,11 @@ Material:
     - _ZWrite: 1
     - sliceOffsetDst: 0
     m_Colors:
+    - _CloneColor: {r: 1, g: 0.9576745, b: 0.23137254, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _MaterialColor: {r: 0.14881255, g: 0.8490566, b: 0.108134575, a: 0}
+    - _MaterialColor: {r: 1, g: 0, b: 0, a: 0}
+    - _MaterialColorFront: {r: 0.9811321, g: 0.24528302, b: 0.24528302, a: 0}
     - _PlaneNormal: {r: 0, g: 0, b: 1, a: 0}
     - _PlanePoint: {r: 0, g: 0, b: 0, a: 0}
     - sliceCentre: {r: 0, g: 0, b: 0, a: 0}
