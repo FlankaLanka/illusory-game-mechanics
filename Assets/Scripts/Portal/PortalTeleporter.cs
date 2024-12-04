@@ -150,6 +150,8 @@ public class PortalTeleporter : MonoBehaviour
         cloneMeshRenderer.material.SetVector("_PlanePoint", new Vector4(clonesPortal.position.x, clonesPortal.position.y, clonesPortal.position.z, 0));
         cloneMeshRenderer.material.SetVector("_PlaneNormal", new Vector4(-planeDirectionPortalB.x, -planeDirectionPortalB.y, -planeDirectionPortalB.z, 0));
         cloneMeshRenderer.material.SetInt("_EnableSlice", 1);
+
+        cloneMeshRenderer.material.SetInt("_IsClone", 1);
     }
 
 

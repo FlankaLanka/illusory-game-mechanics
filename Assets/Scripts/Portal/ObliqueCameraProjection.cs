@@ -19,7 +19,7 @@ public class ObliqueCameraProjection : MonoBehaviour
 
     [Header("Recursive Portals")]
 
-    [Range(0, 5)]
+    [Range(0, 10)]
     public int recursionLimit = 3;
 
     public Transform playerCam;

@@ -276,7 +276,6 @@ MonoBehaviour:
   playerCamera: {fileID: 0}
   portalScreen: {fileID: 9004059565206995131}
   thickness: 0.02
-  offset: 0
 --- !u!1 &9004059565931331492
 GameObject:
   m_ObjectHideFlags: 0
@@ -465,7 +464,7 @@ MonoBehaviour:
   clipPlane: {fileID: 0}
   DisableObliqueProjection: 0
   obliqueOffset: 0
-  recursionLimit: 3
+  recursionLimit: 4
   playerCam: {fileID: 0}
   thisPortal: {fileID: 9004059565493449595}
   otherPortal: {fileID: 0}
