@@ -37,6 +37,13 @@ public class PortalTeleporter : MonoBehaviour
 
     private void Update()
     {
+        if(Input.GetKeyDown(KeyCode.Q))
+        {
+            if(allTravelers.Count > 0)
+                Debug.Log(DistanceFromPointToPlane(transform.position, transform.forward, allTravelers[0].t.position));
+        }
+
+
         UpdateTravelersClones(allTravelers, transform, otherPortal);
 
         //determine which travelers have moved past the portal plane and need to be teleported
@@ -143,15 +150,22 @@ public class PortalTeleporter : MonoBehaviour
             planeDirectionPortalB = -planeDirectionPortalB;
         }
 
-        newcomer.t.GetComponent<MeshRenderer>().material.SetVector("_PlanePoint", new Vector4(portalToEnter.position.x, portalToEnter.position.y, portalToEnter.position.z, 0));
-        newcomer.t.GetComponent<MeshRenderer>().material.SetVector("_PlaneNormal", new Vector4(planeDirectionPortalA.x, planeDirectionPortalA.y, planeDirectionPortalA.z, 0));
-        newcomer.t.GetComponent<MeshRenderer>().material.SetInt("_EnableSlice", 1);
+        mainMeshRenderer.material.SetVector("_PlanePoint", new Vector4(portalToEnter.position.x, portalToEnter.position.y, portalToEnter.position.z, 0));
+        mainMeshRenderer.material.SetVector("_PlaneNormal", new Vector4(planeDirectionPortalA.x, planeDirectionPortalA.y, planeDirectionPortalA.z, 0));
+        mainMeshRenderer.material.SetInt("_EnableSlice", 1);
 
         cloneMeshRenderer.material.SetVector("_PlanePoint", new Vector4(clonesPortal.position.x, clonesPortal.position.y, clonesPortal.position.z, 0));
         cloneMeshRenderer.material.SetVector("_PlaneNormal", new Vector4(-planeDirectionPortalB.x, -planeDirectionPortalB.y, -planeDirectionPortalB.z, 0));
         cloneMeshRenderer.material.SetInt("_EnableSlice", 1);
 
         cloneMeshRenderer.material.SetInt("_IsClone", 1);
+
+        //for player specifically, disable back face culling to prevent camera blocking view
+        if(newcomer.t.tag == "Player")
+        {
+            mainMeshRenderer.material.SetInt("_BUILTIN_CullMode", (int)UnityEngine.Rendering.CullMode.Back);
+            cloneMeshRenderer.material.SetInt("_BUILTIN_CullMode", (int)UnityEngine.Rendering.CullMode.Back);
+        }
     }
 
 
