@@ -27,6 +27,7 @@ public class PortalTeleporter : MonoBehaviour
 
     public Transform otherPortal;
     public Transform thisPortalCamera;
+    public Transform player;
     [SerializeField] public List<TravelerData> allTravelers;
 
 
@@ -66,6 +67,45 @@ public class PortalTeleporter : MonoBehaviour
         allTravelers.RemoveAll(item => TravelersToRemove.Contains(item));
     }
 
+    private void LateUpdate()
+    {
+        //possible TODO: make this check work in sync with Physics thread, but for now works 95+% of time
+        //Create something like a LateFixedUpdate
+        foreach (TravelerData trav in allTravelers)
+        {
+            DetermineProperCollisions(trav, player, this.transform, otherPortal);
+        }
+    }
+
+    public void DetermineProperCollisions(TravelerData traveler, Transform player, Transform portalRef, Transform otherPortalRef)
+    {
+        //no need to check player collisions with itself
+        if (traveler.t.tag == "Player")
+            return;
+
+        //if player and object are on opposite sides of portal
+        if(AreOppositeSigns(Vector3.Dot(player.position - portalRef.position, portalRef.forward),
+                            Vector3.Dot(traveler.t.position - portalRef.position, portalRef.forward)))
+        {
+            Physics.IgnoreCollision(player.GetComponent<Collider>(), traveler.t.GetComponent<Collider>());
+        }
+        else
+        {
+            Physics.IgnoreCollision(player.GetComponent<Collider>(), traveler.t.GetComponent<Collider>(), false);
+        }
+
+        //remember, clone's main body is actually invisible and on other side of portal, so swap the false tag
+        if (AreOppositeSigns(Vector3.Dot(player.position - otherPortalRef.position, otherPortalRef.forward),
+                             Vector3.Dot(traveler.clone.transform.position - otherPortalRef.position, otherPortalRef.forward)))
+        {
+            Physics.IgnoreCollision(player.GetComponent<Collider>(), traveler.clone.GetComponent<Collider>(), false);
+        }
+        else
+        {
+            Physics.IgnoreCollision(player.GetComponent<Collider>(), traveler.clone.GetComponent<Collider>());
+        }
+    }
+
     public void PortalEnterEvent(Transform curTraveler, PortalTeleporter portalToEnter, PortalTeleporter theOtherPortal, string here)
     {
         TravelerData newcomer = new TravelerData(curTraveler, portalToEnter.transform, portalToEnter.transform.forward);
@@ -77,12 +117,17 @@ public class PortalTeleporter : MonoBehaviour
         }
 
         //fix screen orientation and camera again for edge cases
-        portalToEnter.transform.GetComponent<PortalScreenTransform>().FixScreenCubeSideRelativeToPlayer();
-        portalToEnter.transform.GetComponent<PortalCameraTransform>().MatchTransformRelative();
-        portalToEnter.thisPortalCamera.GetComponent<ObliqueCameraProjection>().ApplyObliqueCameraProjection();
+        if(curTraveler.tag == "Player")
+        {
+            portalToEnter.transform.GetComponent<PortalScreenTransform>().FixScreenCubeSideRelativeToPlayer();
+            portalToEnter.transform.GetComponent<PortalCameraTransform>().MatchTransformRelative();
+            portalToEnter.thisPortalCamera.GetComponent<ObliqueCameraProjection>().ApplyObliqueCameraProjection();
+        }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //finally invoke events
+
+        //only create clone if clonable, clones dont have this script so they wont clone themselves infinitely
         if (newcomer.t.GetComponent<ClonableObjectSliceMaterialSetter>() != null)
         {
             CreateClone(newcomer, portalToEnter.transform, theOtherPortal.transform, here);
@@ -138,10 +183,25 @@ public class PortalTeleporter : MonoBehaviour
         cloneMeshRenderer.receiveShadows = mainMeshRenderer.receiveShadows;
         cloneMeshRenderer.shadowCastingMode = mainMeshRenderer.shadowCastingMode;
 
+        Collider mainCollider = newcomer.t.GetComponent<Collider>();
+        if(mainCollider is BoxCollider mainBox)
+        {
+            BoxCollider cloneCollider = newclone.AddComponent<BoxCollider>();
+            cloneCollider.size = mainBox.size;
+        }
+        else
+        {
+            //handle other types of colliders
+        }
+
+
         //get relative transforms
         MatchTransformRelative(newcomer.t, portalToEnter, newclone.transform, clonesPortal);
 
-        //set clip shader
+        //do physics
+        DetermineProperCollisions(newcomer, player, portalToEnter, clonesPortal);
+
+        //do shading
         Vector3 planeDirectionPortalA = portalToEnter.forward;
         Vector3 planeDirectionPortalB = clonesPortal.forward;
         if (Vector3.Dot(newcomer.t.position - portalToEnter.position, portalToEnter.forward) > 0)
