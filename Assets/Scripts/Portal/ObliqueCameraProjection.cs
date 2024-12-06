@@ -34,8 +34,6 @@ public class ObliqueCameraProjection : MonoBehaviour
     private void Update()
     {
         //rendering through script only, set recursiveLimit to 1 for base case rendering
-        FixFinalClip(thisPortal.GetComponent<PortalTeleporter>(), playerCam, 0);
-        FixFinalClip(otherPortal.GetComponent<PortalTeleporter>(), playerCam, 0);
         CalculateRecursivePortals();
         FixFinalClip(thisPortal.GetComponent<PortalTeleporter>(), playerCam, seamOffset);
         FixFinalClip(otherPortal.GetComponent<PortalTeleporter>(), playerCam, seamOffset);
@@ -71,20 +69,20 @@ public class ObliqueCameraProjection : MonoBehaviour
 
             ApplyObliqueCameraProjection();
 
-
             FixClip(otherPortal.GetComponent<PortalTeleporter>(), playerCam, seamOffset);
-
             FixClip(thisPortal.GetComponent<PortalTeleporter>(), playerCam, seamOffset);
 
             cam.Render();
 
+            //no need to reset
             //reset clip plane, useful for player camera's render, being lazy here instead of writing a reset function
-            FixClip(thisPortal.GetComponent<PortalTeleporter>(), playerCam, 0.0f);
-            FixClip(otherPortal.GetComponent<PortalTeleporter>(), playerCam, 0.0f);
+            //FixClip(thisPortal.GetComponent<PortalTeleporter>(), playerCam, 0.0f);
+            //FixClip(otherPortal.GetComponent<PortalTeleporter>(), playerCam, 0.0f);
         }
 
     }
 
+    //note: whether to extrude or intrude is based on other's (clone based on main, main based on clone)
     public void FixClip(PortalTeleporter teleportingManager, Transform player, float offset)
     {
 
@@ -94,39 +92,32 @@ public class ObliqueCameraProjection : MonoBehaviour
             if (traveler.clone == null)
                 continue;
 
-
+            MeshRenderer cloneMeshRenderer = traveler.clone.GetComponent<MeshRenderer>();
+            Vector3 cloneMeshClipNormal = cloneMeshRenderer.material.GetVector("_PlaneNormal");
             if (OppositeSideOfPortal(traveler.t.transform, player, teleportingManager.transform))
             {
-                MeshRenderer cloneMeshRenderer = traveler.clone.GetComponent<MeshRenderer>();
-                Vector3 cloneMeshClipNormal = cloneMeshRenderer.material.GetVector("_PlaneNormal");
                 cloneMeshRenderer.material.SetVector("_PlanePoint", teleportingManager.otherPortal.transform.position - cloneMeshClipNormal * offset);
             }
             else
             {
-                MeshRenderer cloneMeshRenderer = traveler.clone.GetComponent<MeshRenderer>();
-                Vector3 cloneMeshClipNormal = cloneMeshRenderer.material.GetVector("_PlaneNormal");
                 cloneMeshRenderer.material.SetVector("_PlanePoint", teleportingManager.otherPortal.transform.position + cloneMeshClipNormal * offset);
             }
 
+            MeshRenderer mainMeshRenderer = traveler.t.GetComponent<MeshRenderer>();
+            Vector3 mainMeshClipNormal = mainMeshRenderer.material.GetVector("_PlaneNormal");
             if (OppositeSideOfPortal(traveler.clone.transform, player, teleportingManager.otherPortal.transform))
             {
-                MeshRenderer mainMeshRenderer = traveler.t.GetComponent<MeshRenderer>();
-                Vector3 mainMeshClipNormal = mainMeshRenderer.material.GetVector("_PlaneNormal");
-                mainMeshRenderer.material.SetVector("_PlanePoint", teleportingManager.transform.position - mainMeshClipNormal * offset);
+                mainMeshRenderer.material.SetVector("_PlanePoint", teleportingManager.transform.position + mainMeshClipNormal * offset);
             }
             else
             {
-                MeshRenderer mainMeshRenderer = traveler.t.GetComponent<MeshRenderer>();
-                Vector3 mainMeshClipNormal = mainMeshRenderer.material.GetVector("_PlaneNormal");
-                mainMeshRenderer.material.SetVector("_PlanePoint", teleportingManager.transform.position + mainMeshClipNormal * offset);
+                mainMeshRenderer.material.SetVector("_PlanePoint", teleportingManager.transform.position - mainMeshClipNormal * offset);
             }
-
-
-
         }
     }
 
     //for rendering the main camera, modify object for main camera, not for rendering textures
+    //goal is just to extrude clipping into portal plane or out based on player pos
     public void FixFinalClip(PortalTeleporter teleportingManager, Transform player, float offset)
     {
         foreach (PortalTeleporter.TravelerData traveler in teleportingManager.allTravelers)
@@ -135,38 +126,26 @@ public class ObliqueCameraProjection : MonoBehaviour
             if (traveler.clone == null)
                 continue;
 
+            MeshRenderer mainMeshRenderer = traveler.t.GetComponent<MeshRenderer>();
+            Vector3 mainMeshClipNormal = mainMeshRenderer.material.GetVector("_PlaneNormal");
             if (OppositeSideOfPortal(traveler.t, player, teleportingManager.transform))
             {
-                MeshRenderer mainMeshRenderer = traveler.t.GetComponent<MeshRenderer>();
-                Vector3 mainMeshClipNormal = mainMeshRenderer.material.GetVector("_PlaneNormal");
                 mainMeshRenderer.material.SetVector("_PlanePoint", teleportingManager.transform.position - mainMeshClipNormal * offset);
-                Debug.Log("was on opposite side main " + teleportingManager.transform.name);
             }
             else
             {
-                MeshRenderer mainMeshRenderer = traveler.t.GetComponent<MeshRenderer>();
-                Vector3 mainMeshClipNormal = mainMeshRenderer.material.GetVector("_PlaneNormal");
                 mainMeshRenderer.material.SetVector("_PlanePoint", teleportingManager.transform.position + mainMeshClipNormal * offset);
-                Debug.Log("was on same side main" + teleportingManager.transform.name);
-
             }
 
-
+            MeshRenderer cloneMeshRenderer = traveler.clone.GetComponent<MeshRenderer>();
+            Vector3 cloneMeshClipNormal = cloneMeshRenderer.material.GetVector("_PlaneNormal");
             if (OppositeSideOfPortal(traveler.clone.transform, player, teleportingManager.otherPortal.transform))
             {
-                MeshRenderer cloneMeshRenderer = traveler.clone.GetComponent<MeshRenderer>();
-                Vector3 cloneMeshClipNormal = cloneMeshRenderer.material.GetVector("_PlaneNormal");
-                cloneMeshRenderer.material.SetVector("_PlanePoint", teleportingManager.otherPortal.transform.position - cloneMeshClipNormal * -offset);
-                Debug.Log("was on opposite side clone " + teleportingManager.otherPortal.transform.name);
-
+                cloneMeshRenderer.material.SetVector("_PlanePoint", teleportingManager.otherPortal.transform.position + cloneMeshClipNormal * offset);
             }
             else
             {
-                MeshRenderer cloneMeshRenderer = traveler.clone.GetComponent<MeshRenderer>();
-                Vector3 cloneMeshClipNormal = cloneMeshRenderer.material.GetVector("_PlaneNormal");
-                cloneMeshRenderer.material.SetVector("_PlanePoint", teleportingManager.otherPortal.transform.position + cloneMeshClipNormal * -offset);
-                Debug.Log("was on same side clone " + teleportingManager.otherPortal.transform.name);
-
+                cloneMeshRenderer.material.SetVector("_PlanePoint", teleportingManager.otherPortal.transform.position - cloneMeshClipNormal * offset);
             }
         }
     }

@@ -9,6 +9,9 @@ public class ClonableObjectSliceMaterialSetter : MonoBehaviour
 {
     public Material sliceMat;
 
+    public Vector3 randColorLowerBound;
+    public Vector3 randColorUpperBound;
+
     private MeshRenderer m;
 
     // Start is called before the first frame update
@@ -18,13 +21,15 @@ public class ClonableObjectSliceMaterialSetter : MonoBehaviour
         Assert.IsNotNull(sliceMat);
         m.material = new Material(sliceMat);
 
-        Color randColor = new Color(Random.Range(0.5f, 1f), Random.Range(0.5f, 1f), Random.Range(0.5f, 1f));
+        Color randColor = new Color(Random.Range(randColorLowerBound.x, randColorUpperBound.x),
+                                    Random.Range(randColorLowerBound.y, randColorUpperBound.y),
+                                    Random.Range(randColorLowerBound.z, randColorUpperBound.z));
         m.material.SetColor("_MaterialColor", randColor);
         m.material.SetColor("_CloneColor", randColor);
 
         //uncomment these lines for debug
-        m.material.SetColor("_MaterialColor", Color.red);
-        m.material.SetColor("_CloneColor", Color.green);
+        //m.material.SetColor("_MaterialColor", Color.red);
+        //m.material.SetColor("_CloneColor", Color.green);
 
         //for player we dont want back faces otherwise camera will block our view when entering portal
         if (gameObject.tag == "Player")
