@@ -6,26 +6,25 @@ using UnityEngine.Device;
 using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 
+//NOTE: Make sure execution order of this script is always last, after every script under the portal parent gameobject
 [RequireComponent(typeof(Camera))]
 public class ObliqueCameraProjection : MonoBehaviour
 {
-    public Transform clipPlane; // The new near plane
-    public bool DisableObliqueProjection;
-
-    [Range(-0.1f, 0.2f)]
-    public float obliqueOffset; // Offset to avoid precision issues
-
     private Camera cam;
 
-    [Header("Recursive Portals")]
+    public Transform clipPlane; // The new near plane
+    public bool enableObliqueProjection;
+    [Range(-1.15f, 1.15f)]
+    public float seamOffset = 0f;
 
-    [Range(0, 10)]
+    //probably better to refactor recursive portals into another script
+    [Header("Recursive Portals")]
+    [Range(1, 10)]
     public int recursionLimit = 3;
 
     public Transform playerCam;
     public Transform thisPortal;
     public Transform otherPortal;
-    //public GameObject[] recursiveTracker; //for debug to visualize the transform of recursive viewpoints, attach cubes, for example, to this
 
     void Awake()
     {
@@ -34,11 +33,7 @@ public class ObliqueCameraProjection : MonoBehaviour
 
     private void Update()
     {
-        ApplyObliqueCameraProjection();
-    }
-
-    private void LateUpdate()
-    {
+        //rendering through script only, set recursiveLimit to 1 for base case rendering
         CalculateRecursivePortals();
     }
 
@@ -65,20 +60,66 @@ public class ObliqueCameraProjection : MonoBehaviour
         {
             transform.SetPositionAndRotation(matrices[i].GetColumn(3), matrices[i].rotation);
 
-            //for debug
-            //if (i < recursiveTracker.Length && recursiveTracker[i] != null)
-            //    recursiveTracker[i].transform.SetPositionAndRotation(matrices[i].GetColumn(3), matrices[i].rotation);
-
             ApplyObliqueCameraProjection();
+
+
+            //FixClip(otherPortal.GetComponent<PortalTeleporter>(), playerCam, seamOffset);
+
+            //FixClip(thisPortal.GetComponent<PortalTeleporter>(), playerCam, seamOffset);
+
             cam.Render();
+
+            //reset clip plane, useful for player camera's render, being lazy here instead of writing a reset function
+            //FixClip(otherPortal.GetComponent<PortalTeleporter>(), playerCam, 0.01f);
+
+            //FixClip(thisPortal.GetComponent<PortalTeleporter>(), playerCam, 0.01f);
         }
 
     }
 
+    public void FixClip(PortalTeleporter teleportingManager, Transform player, float offset)
+    {
+        foreach(PortalTeleporter.TravelerData traveler in teleportingManager.allTravelers)
+        {
+            //if object has no clone, means it is not a travelling object, just ignore
+            if (traveler.clone == null)
+                continue;
+
+            if (OppositeSideOfPortal(traveler.t, player, teleportingManager.transform))
+            {
+                if (offset != 0)
+                    Debug.Log(teleportingManager.name + "OPPSITE SIDE");
+                offset = -offset;
+            }
+            else
+            {
+                if (offset != 0)
+                    Debug.Log(teleportingManager.name + "SAME SIDE");
+            }
+
+            MeshRenderer mainMeshRenderer = traveler.t.GetComponent<MeshRenderer>();
+            Vector3 mainMeshClipNormal = mainMeshRenderer.material.GetVector("_PlaneNormal");
+            mainMeshRenderer.material.SetVector("_PlanePoint", teleportingManager.transform.position + mainMeshClipNormal * offset);
+
+            MeshRenderer cloneMeshRenderer = traveler.clone.GetComponent<MeshRenderer>();
+            Vector3 cloneMeshClipNormal = cloneMeshRenderer.material.GetVector("_PlaneNormal");
+            cloneMeshRenderer.material.SetVector("_PlanePoint", teleportingManager.otherPortal.transform.position + cloneMeshClipNormal * offset);
+        }
+    }
+
+    public bool OppositeSideOfPortal(Transform t, Transform p, Transform portal)
+    {
+        return AreOppositeSigns(Vector3.Dot(portal.forward, t.position - portal.position), Vector3.Dot(portal.forward, p.position - portal.position));
+    }
+
+    bool AreOppositeSigns(float number1, float number2)
+    {
+        return (number1 > 0 && number2 < 0) || (number1 < 0 && number2 > 0);
+    }
 
     public void ApplyObliqueCameraProjection()
     {
-        if (clipPlane == null || DisableObliqueProjection)
+        if (clipPlane == null || !enableObliqueProjection)
         {
             cam.ResetProjectionMatrix();
             return;
@@ -91,10 +132,7 @@ public class ObliqueCameraProjection : MonoBehaviour
 
         // Adjust plane position based on camera's relative position
         if (Vector3.Dot(planeNormal, dirToPlane) > 0)
-        {
             planeNormal = -planeNormal;
-        }
-        planePosition -= planeNormal * obliqueOffset;
 
         // Apply the adjusted projection matrix
         cam.ResetProjectionMatrix();

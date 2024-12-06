@@ -17,15 +17,17 @@ public class ClonableObjectSliceMaterialSetter : MonoBehaviour
         m = GetComponent<MeshRenderer>();
         Assert.IsNotNull(sliceMat);
         m.material = new Material(sliceMat);
+
         Color randColor = new Color(Random.Range(0.5f, 1f), Random.Range(0.5f, 1f), Random.Range(0.5f, 1f));
         m.material.SetColor("_MaterialColor", randColor);
-
-        //uncomment this line to set clone's color to be different for debug
-        //randColor = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
         m.material.SetColor("_CloneColor", randColor);
 
+        //uncomment these lines for debug
+        m.material.SetColor("_MaterialColor", Color.red);
+        m.material.SetColor("_CloneColor", Color.green);
+
         //for player we dont want back faces otherwise camera will block our view when entering portal
-        if(gameObject.tag == "Player")
+        if (gameObject.tag == "Player")
         {
             m.material.SetInt("_BUILTIN_CullMode", (int)UnityEngine.Rendering.CullMode.Back);
         }

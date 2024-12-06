@@ -413,7 +413,7 @@ Camera:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9004059566220109862}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_ClearFlags: 1
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
@@ -461,9 +461,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb9fce07407254e409797f9dc8629f50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  portalTeleporter: {fileID: 4172877997818502735}
   clipPlane: {fileID: 0}
-  DisableObliqueProjection: 0
-  obliqueOffset: 0
+  enableObliqueProjection: 1
+  seamOffset: 0
   recursionLimit: 4
   playerCam: {fileID: 0}
   thisPortal: {fileID: 9004059565493449595}
