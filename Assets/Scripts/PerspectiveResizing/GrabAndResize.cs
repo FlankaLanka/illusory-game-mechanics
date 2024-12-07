@@ -5,14 +5,19 @@ using UnityEngine;
 public class GrabAndResize : MonoBehaviour
 {
     public Transform playerCam;
-    public Transform grabbedObject;
-
     public float maxDistanceAway = 10f;
 
+    //regular grabbing
+    private Transform grabbedObject;
     private Vector3 objectRelativePosition;
     private Quaternion objectRelativeRotation;
     private Vector3 objectStartingScale;
 
+    //resizing
+    private float resizeFactor = 0f;
+    private Vector3 originalScaleFromCamera;
+    private float originalDistFromCamera;
+    private float distAwayFromWall;
 
     void Update()
     {
@@ -73,13 +78,6 @@ public class GrabAndResize : MonoBehaviour
         Debug.Log("Object released");
     }
 
-
-    public float resizeFactor = 0f;
-    private Vector3 originalScaleFromCamera;
-    private float originalDistFromCamera;
-
-    private float distAwayFromWall;
-
     private void TryHold()
     {
         if (grabbedObject == null)
@@ -91,13 +89,11 @@ public class GrabAndResize : MonoBehaviour
         grabbedObject.position = playerCam.TransformPoint(objectRelativePosition);
         grabbedObject.rotation = playerCam.rotation * objectRelativeRotation;
 
-        //calculate resizeFactor, make object reach closest wall
-        Vector3 curDirection = (grabbedObject.position - playerCam.position).normalized;
-
-        Ray ray = new Ray(playerCam.position, curDirection);
+        //everything below is about resizing
+        Vector3 curDirectionUnnormalized = grabbedObject.position - playerCam.position;
+        Ray ray = new Ray(playerCam.position, curDirectionUnnormalized.normalized);
         RaycastHit[] hits = Physics.RaycastAll(ray);
         distAwayFromWall = maxDistanceAway;
-
         for(int i = 0; i < hits.Length; i++)
         {
             if (hits[i].transform.GetComponent<Grabbable>())
@@ -108,23 +104,9 @@ public class GrabAndResize : MonoBehaviour
             //break;
         }
 
-        //distAwayFromWall = Vector3.Distance(GetReasonableFinalDistance(grabbedObject, playerCam.position, playerCam.position + distAwayFromWall * curDirection, 0.05f), playerCam.position);
-        resizeFactor = distAwayFromWall / originalDistFromCamera;
-
-        grabbedObject.position = (curDirection * originalDistFromCamera) * resizeFactor + playerCam.position;
+        //potential TODO: instead of 0.9f, iteratively check best distance using Physics.OverlapBox
+        resizeFactor = (distAwayFromWall * 0.9f) / originalDistFromCamera;
+        grabbedObject.position = (curDirectionUnnormalized.normalized * originalDistFromCamera) * resizeFactor + playerCam.position;
         grabbedObject.localScale = originalScaleFromCamera * resizeFactor;
-    }
-
-    //TODO: make sure the box isn't colliding into wall
-    private Vector3 GetReasonableFinalDistance(Transform t, Vector3 start, Vector3 end, float intervals)
-    {
-        float lerp = 1f;
-        Vector3 center = Vector3.Lerp(start, end, lerp);
-        while(Physics.OverlapBox(center,t.GetComponent<BoxCollider>().size, t.rotation).Length > 0 && lerp >= intervals)
-        {
-            lerp -= intervals;
-        }
-
-        return Vector3.Lerp(start, end, lerp);
     }
 }
