@@ -39,11 +39,6 @@ public class ObliqueCameraProjection : MonoBehaviour
         FixFinalClip(otherPortal.GetComponent<PortalTeleporter>(), playerCam, seamOffset);
     }
 
-    private void LateUpdate()
-    {
-
-    }
-
     public void CalculateRecursivePortals()
     {
         Matrix4x4 originalMatrix = transform.localToWorldMatrix;
@@ -73,11 +68,6 @@ public class ObliqueCameraProjection : MonoBehaviour
             FixClip(thisPortal.GetComponent<PortalTeleporter>(), playerCam, seamOffset);
 
             cam.Render();
-
-            //no need to reset
-            //reset clip plane, useful for player camera's render, being lazy here instead of writing a reset function
-            //FixClip(thisPortal.GetComponent<PortalTeleporter>(), playerCam, 0.0f);
-            //FixClip(otherPortal.GetComponent<PortalTeleporter>(), playerCam, 0.0f);
         }
 
     }

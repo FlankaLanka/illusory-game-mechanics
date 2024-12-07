@@ -69,8 +69,7 @@ public class PortalTeleporter : MonoBehaviour
 
     private void LateUpdate()
     {
-        //possible TODO: make this check work in sync with Physics thread, but for now works 95+% of time
-        //Create something like a LateFixedUpdate
+        //possible TODO: haven't ran into errors yet, but I believe updating here might not be correct since Physics Thread is separate
         foreach (TravelerData trav in allTravelers)
         {
             DetermineProperCollisions(trav, player, this.transform, otherPortal);
@@ -223,7 +222,6 @@ public class PortalTeleporter : MonoBehaviour
         //for player specifically, disable back face culling to prevent camera blocking view
         if(newcomer.t.tag == "Player")
         {
-            mainMeshRenderer.material.SetInt("_BUILTIN_CullMode", (int)UnityEngine.Rendering.CullMode.Back);
             cloneMeshRenderer.material.SetInt("_BUILTIN_CullMode", (int)UnityEngine.Rendering.CullMode.Back);
         }
     }

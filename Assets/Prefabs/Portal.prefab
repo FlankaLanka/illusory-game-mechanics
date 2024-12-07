@@ -245,6 +245,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   otherPortal: {fileID: 0}
   thisPortalCamera: {fileID: 9004059566220109857}
+  player: {fileID: 0}
   allTravelers: []
 --- !u!114 &7224498410275848884
 MonoBehaviour:
@@ -461,11 +462,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb9fce07407254e409797f9dc8629f50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  portalTeleporter: {fileID: 4172877997818502735}
   clipPlane: {fileID: 0}
   enableObliqueProjection: 1
   seamOffset: 0
-  recursionLimit: 4
+  recursionLimit: 5
   playerCam: {fileID: 0}
   thisPortal: {fileID: 9004059565493449595}
   otherPortal: {fileID: 0}

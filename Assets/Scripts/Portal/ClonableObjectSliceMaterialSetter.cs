@@ -30,11 +30,5 @@ public class ClonableObjectSliceMaterialSetter : MonoBehaviour
         //uncomment these lines for debug
         //m.material.SetColor("_MaterialColor", Color.red);
         //m.material.SetColor("_CloneColor", Color.green);
-
-        //for player we dont want back faces otherwise camera will block our view when entering portal
-        if (gameObject.tag == "Player")
-        {
-            m.material.SetInt("_BUILTIN_CullMode", (int)UnityEngine.Rendering.CullMode.Back);
-        }
     }
 }
