@@ -27,7 +27,6 @@ public class ClonableObjectSliceMaterialSetter : MonoBehaviour
         m.material.SetColor("_MaterialColor", randColor);
         m.material.SetColor("_CloneColor", randColor);
 
-        //uncomment these lines for debug
         //m.material.SetColor("_MaterialColor", Color.red);
         //m.material.SetColor("_CloneColor", Color.green);
     }

@@ -34,6 +34,7 @@ public class ObliqueCameraProjection : MonoBehaviour
     private void Update()
     {
         //rendering through script only, set recursiveLimit to 1 for base case rendering
+
         CalculateRecursivePortals();
         FixFinalClip(thisPortal.GetComponent<PortalTeleporter>(), playerCam, seamOffset);
         FixFinalClip(otherPortal.GetComponent<PortalTeleporter>(), playerCam, seamOffset);
@@ -64,19 +65,19 @@ public class ObliqueCameraProjection : MonoBehaviour
 
             ApplyObliqueCameraProjection();
 
-            FixClip(otherPortal.GetComponent<PortalTeleporter>(), playerCam, seamOffset);
-            FixClip(thisPortal.GetComponent<PortalTeleporter>(), playerCam, seamOffset);
+            //before rendering reset all clipping pos
+            FixFinalClip(thisPortal.GetComponent<PortalTeleporter>(), playerCam, 0);
+            FixFinalClip(otherPortal.GetComponent<PortalTeleporter>(), playerCam, 0);
 
+            FixClipBoth(thisPortal.GetComponent<PortalTeleporter>(), otherPortal.GetComponent<PortalTeleporter>(), this.transform, seamOffset);
             cam.Render();
         }
-
     }
 
-    //note: whether to extrude or intrude is based on other's (clone based on main, main based on clone)
-    public void FixClip(PortalTeleporter teleportingManager, Transform player, float offset)
+    //possible code dupe, but math got too confusing so...
+    public void FixClipBoth(PortalTeleporter ourPortal, PortalTeleporter otherPortal, Transform portalCamera, float offset)
     {
-
-        foreach(PortalTeleporter.TravelerData traveler in teleportingManager.allTravelers)
+        foreach (PortalTeleporter.TravelerData traveler in ourPortal.allTravelers)
         {
             //if object has no clone, means it is not a travelling object, just ignore
             if (traveler.clone == null)
@@ -84,27 +85,43 @@ public class ObliqueCameraProjection : MonoBehaviour
 
             MeshRenderer cloneMeshRenderer = traveler.clone.GetComponent<MeshRenderer>();
             Vector3 cloneMeshClipNormal = cloneMeshRenderer.material.GetVector("_PlaneNormal");
-            if (OppositeSideOfPortal(traveler.t.transform, player, teleportingManager.transform))
+            if (OppositeSideOfPortal(traveler.clone.transform, portalCamera, otherPortal.transform))
             {
-                cloneMeshRenderer.material.SetVector("_PlanePoint", teleportingManager.otherPortal.transform.position - cloneMeshClipNormal * offset);
+                cloneMeshRenderer.material.SetVector("_PlanePoint", otherPortal.transform.position - cloneMeshClipNormal * offset);
             }
             else
             {
-                cloneMeshRenderer.material.SetVector("_PlanePoint", teleportingManager.otherPortal.transform.position + cloneMeshClipNormal * offset);
+                cloneMeshRenderer.material.SetVector("_PlanePoint", otherPortal.transform.position + cloneMeshClipNormal * offset);
             }
+
+            //MeshRenderer mainMeshRenderer = traveler.t.GetComponent<MeshRenderer>();
+            //Vector3 mainMeshClipNormal = mainMeshRenderer.material.GetVector("_PlaneNormal");
+            //mainMeshRenderer.material.SetVector("_PlanePoint", ourPortal.transform.position);
+        }
+
+        foreach (PortalTeleporter.TravelerData traveler in otherPortal.allTravelers)
+        {
+            //if object has no clone, means it is not a travelling object, just ignore
+            if (traveler.clone == null)
+                continue;
 
             MeshRenderer mainMeshRenderer = traveler.t.GetComponent<MeshRenderer>();
             Vector3 mainMeshClipNormal = mainMeshRenderer.material.GetVector("_PlaneNormal");
-            if (OppositeSideOfPortal(traveler.clone.transform, player, teleportingManager.otherPortal.transform))
+            if (OppositeSideOfPortal(traveler.t.transform, portalCamera, otherPortal.transform))
             {
-                mainMeshRenderer.material.SetVector("_PlanePoint", teleportingManager.transform.position + mainMeshClipNormal * offset);
+                mainMeshRenderer.material.SetVector("_PlanePoint", otherPortal.transform.position + mainMeshClipNormal * offset);
             }
             else
             {
-                mainMeshRenderer.material.SetVector("_PlanePoint", teleportingManager.transform.position - mainMeshClipNormal * offset);
+                mainMeshRenderer.material.SetVector("_PlanePoint", otherPortal.transform.position - mainMeshClipNormal * offset);
             }
+
+            //MeshRenderer cloneMeshRenderer = traveler.clone.GetComponent<MeshRenderer>();
+            //Vector3 cloneMeshClipNormal = cloneMeshRenderer.material.GetVector("_PlaneNormal");
+            //cloneMeshRenderer.material.SetVector("_PlanePoint", otherPortal.transform.position);
         }
     }
+
 
     //for rendering the main camera, modify object for main camera, not for rendering textures
     //goal is just to extrude clipping into portal plane or out based on player pos
