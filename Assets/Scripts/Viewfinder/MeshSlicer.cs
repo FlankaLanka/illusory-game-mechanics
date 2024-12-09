@@ -5,6 +5,33 @@ using UnityEngine;
 
 public class MeshSlicer
 {
+    #region Helper Classes
+
+    public class CustomMeshDataStruct
+    {
+        public List<Vector3> verticesList = new();
+        public List<Vector3> normalsList = new();
+        public List<Vector2> uvsList = new();
+        public List<int> trianglesList = new();
+    }
+
+    public class CustomVertexDataStruct
+    {
+        public Vector3 vertex;
+        public Vector3 normal;
+        public Vector2 uv;
+
+        public CustomVertexDataStruct(Vector3 v, Vector3 n, Vector2 u)
+        {
+            vertex = v;
+            normal = n;
+            uv = u;
+        }
+    }
+
+    #endregion
+
+
     public static (GameObject, GameObject) Cut(GameObject originalObject, Vector3 planeNormal, Vector3 planePoint)
     {
         //check mesh requirements
@@ -32,27 +59,6 @@ public class MeshSlicer
         return (ConstructGameObjectFromMesh(leftMesh, mainMeshRenderer, originalObject, "left"), ConstructGameObjectFromMesh(rightMesh, mainMeshRenderer, originalObject, "right"));
     }
 
-    public class CustomMeshDataStruct
-    {
-        public List<Vector3> verticesList = new();
-        public List<Vector3> normalsList = new();
-        public List<Vector2> uvsList = new();
-        public List<int> trianglesList = new();
-    }
-
-    public class CustomVertexDataStruct
-    {
-        public Vector3 vertex;
-        public Vector3 normal;
-        public Vector2 uv;
-
-        public CustomVertexDataStruct(Vector3 v, Vector3 n, Vector2 u)
-        {
-            vertex = v;
-            normal = n;
-            uv = u;
-        }
-    }
 
     private static void SeparateMesh(Mesh mainMesh, Mesh leftMesh, Mesh rightMesh, Transform meshTransform, Vector3 planeNormal, Vector3 planePoint)
     {
@@ -91,9 +97,6 @@ public class MeshSlicer
             }
             else
             {
-                // Handle triangles that intersect the plane (optional)
-                // This involves splitting the triangle and generating new vertices/normals/UVs
-
                 if (v1NormalSide && !v2NormalSide && !v3NormalSide)
                 {
                     Patch((v2, v3), v1, customRightMesh, customLeftMesh, planeNormal, planePoint, mainMesh);
@@ -157,17 +160,19 @@ public class MeshSlicer
         customMesh.uvsList.Add(vertexData.uv);
     }
 
-    private static void Patch((int,int) vIndexSameSide, int vIndexOppositeSide, CustomMeshDataStruct customMeshSolo, CustomMeshDataStruct customMeshDuo,
+    private static void Patch((int,int) vIndexSameSide, int vIndexOppositeSide, CustomMeshDataStruct customMeshDuo, CustomMeshDataStruct customMeshSolo,
                               Vector3 planeNormal, Vector3 planePoint, Mesh mainMesh)
     {
-        Vector3 lerpedVertex1 = FindLerpOnPlane(planeNormal, planePoint, mainMesh.vertices[vIndexSameSide.Item1], mainMesh.vertices[vIndexOppositeSide]);
-        Vector3 lerpedVertex2 = FindLerpOnPlane(planeNormal, planePoint, mainMesh.vertices[vIndexSameSide.Item2], mainMesh.vertices[vIndexOppositeSide]);
+        float lerpTime1 = FindLerpOnPlane(planeNormal, planePoint, mainMesh.vertices[vIndexSameSide.Item1], mainMesh.vertices[vIndexOppositeSide]);
+        float lerpTime2 = FindLerpOnPlane(planeNormal, planePoint, mainMesh.vertices[vIndexSameSide.Item2], mainMesh.vertices[vIndexOppositeSide]);
 
-        Vector3 lerpedNormal1 = FindLerpOnPlane(planeNormal, planePoint, mainMesh.normals[vIndexSameSide.Item1], mainMesh.normals[vIndexOppositeSide]);
-        Vector3 lerpedNormal2 = FindLerpOnPlane(planeNormal, planePoint, mainMesh.normals[vIndexSameSide.Item2], mainMesh.normals[vIndexOppositeSide]);
+        Vector3 lerpedVertex1 = Vector3.Lerp(mainMesh.vertices[vIndexSameSide.Item1], mainMesh.vertices[vIndexOppositeSide], lerpTime1);
+        Vector3 lerpedNormal1 = Vector3.Lerp(mainMesh.normals[vIndexSameSide.Item1], mainMesh.normals[vIndexOppositeSide], lerpTime1);
+        Vector3 lerpedUVs1 = Vector3.Lerp(mainMesh.uv[vIndexSameSide.Item1], mainMesh.uv[vIndexOppositeSide], lerpTime1);
 
-        Vector3 lerpedUVs1 = FindLerpOnPlane(planeNormal, planePoint, mainMesh.uv[vIndexSameSide.Item1], mainMesh.uv[vIndexOppositeSide]);
-        Vector3 lerpedUVs2 = FindLerpOnPlane(planeNormal, planePoint, mainMesh.uv[vIndexSameSide.Item2], mainMesh.uv[vIndexOppositeSide]);
+        Vector3 lerpedVertex2 = Vector3.Lerp(mainMesh.vertices[vIndexSameSide.Item2], mainMesh.vertices[vIndexOppositeSide], lerpTime2);
+        Vector3 lerpedNormal2 = Vector3.Lerp(mainMesh.normals[vIndexSameSide.Item2], mainMesh.normals[vIndexOppositeSide], lerpTime2);
+        Vector3 lerpedUVs2 = Vector3.Lerp(mainMesh.uv[vIndexSameSide.Item2], mainMesh.uv[vIndexOppositeSide], lerpTime2);
 
         //patch single, order of adding is important
         CustomVertexDataStruct soloVertexData1 = new(mainMesh.vertices[vIndexOppositeSide], mainMesh.normals[vIndexOppositeSide], mainMesh.uv[vIndexOppositeSide]);
@@ -203,20 +208,12 @@ public class MeshSlicer
         return Vector3.Dot(planeNormal, vertexPoint - planePoint) >= 0;
     }
 
-    private static Vector3 FindLerpOnPlane(Vector3 planeNormal, Vector3 planePoint, Vector3 vertexA, Vector3 vertexB)
+    private static float FindLerpOnPlane(Vector3 planeNormal, Vector3 planePoint, Vector3 vertexA, Vector3 vertexB)
     {
-        // Calculate the direction vector between the two vertices
         Vector3 edgeDirection = vertexB - vertexA;
-
-        // Calculate the distance from each vertex to the plane
         float distanceA = Vector3.Dot(planeNormal, vertexA - planePoint);
         float distanceB = Vector3.Dot(planeNormal, vertexB - planePoint);
-
-        // Calculate the interpolation factor (lerp value)
-        float t = distanceA / (distanceA - distanceB);
-
-        // Lerp between the two vertices based on the factor
-        return Vector3.Lerp(vertexA, vertexB, t);
+        return distanceA / (distanceA - distanceB);
     }
 
     #endregion
