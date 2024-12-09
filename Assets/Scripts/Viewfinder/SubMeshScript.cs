@@ -11,6 +11,7 @@ public class SubMeshScript : MonoBehaviour
 {
 
     Material[] mat = new Material[2];
+    public Texture2D t1, t2;
 
     Vector3[] vertices = new Vector3[8];
     Vector2[] uvs = new Vector2[8];
@@ -35,8 +36,8 @@ public class SubMeshScript : MonoBehaviour
         mat[0] = new Material(Shader.Find("Unlit/Texture"));
         mat[1] = new Material(Shader.Find("Unlit/Texture"));
 
-        mat[0].mainTexture = Resources.Load("colorTest") as Texture2D;
-        mat[1].mainTexture = Resources.Load("MyTest") as Texture2D;
+        mat[0].mainTexture = t1;
+        mat[1].mainTexture = t2;
 
         rend.materials = mat;
 
