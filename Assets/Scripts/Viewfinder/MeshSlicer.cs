@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -39,23 +40,24 @@ public class MeshSlicer
         public List<int> trianglesList = new();
     }
 
+    public class CustomVertexDataStruct
+    {
+        public Vector3 vertex;
+        public Vector3 normal;
+        public Vector2 uv;
+
+        public CustomVertexDataStruct(Vector3 v, Vector3 n, Vector2 u)
+        {
+            vertex = v;
+            normal = n;
+            uv = u;
+        }
+    }
+
     private static void SeparateMesh(Mesh mainMesh, Mesh leftMesh, Mesh rightMesh, Transform meshTransform, Vector3 planeNormal, Vector3 planePoint)
     {
-        List<Vector3> verticesLeft = new();
-        List<Vector3> verticesRight = new();
-
-        List<Vector3> normalsLeft = new();
-        List<Vector3> normalsRight = new();
-
-        List<Vector2> uvsLeft = new();
-        List<Vector2> uvsRight = new();
-
-        List<int> trianglesLeft = new();
-        List<int> trianglesRight = new();
-
         CustomMeshDataStruct customLeftMesh = new();
         CustomMeshDataStruct customRightMesh = new();
-
 
         for (int i = 0; i < mainMesh.triangles.Length; i += 3)
         {
@@ -72,19 +74,20 @@ public class MeshSlicer
             bool v2NormalSide = OnNormalSideOfPlane(planeNormal, planePoint, worldV2);
             bool v3NormalSide = OnNormalSideOfPlane(planeNormal, planePoint, worldV3);
 
-
             //potential TODO: improve vertex storage. Instead of creating duplicate, use dictionary to map
             if (v1NormalSide && v2NormalSide && v3NormalSide)
             {
-                // Add vertices, normals, uvs, and triangles to the left mesh
-                AddTriangleToMesh(v1, v2, v3, mainMesh, verticesLeft, normalsLeft, uvsLeft, trianglesLeft);
-                //AddTriangleToMesh(v1, v2, v3, mainMesh, customLeftMesh);
+                CustomVertexDataStruct datav1 = new(mainMesh.vertices[v1], mainMesh.normals[v1], mainMesh.uv[v1]);
+                CustomVertexDataStruct datav2 = new(mainMesh.vertices[v2], mainMesh.normals[v2], mainMesh.uv[v2]);
+                CustomVertexDataStruct datav3 = new(mainMesh.vertices[v3], mainMesh.normals[v3], mainMesh.uv[v3]);
+                AddTriangleToMesh(datav1, datav2, datav3, customLeftMesh);
             }
             else if (!v1NormalSide && !v2NormalSide && !v3NormalSide)
             {
-                // Add vertices, normals, uvs, and triangles to the right mesh
-                AddTriangleToMesh(v1, v2, v3, mainMesh, verticesRight, normalsRight, uvsRight, trianglesRight);
-                //AddTriangleToMesh(v1, v2, v3, mainMesh, customRightMesh);
+                CustomVertexDataStruct datav1 = new(mainMesh.vertices[v1], mainMesh.normals[v1], mainMesh.uv[v1]);
+                CustomVertexDataStruct datav2 = new(mainMesh.vertices[v2], mainMesh.normals[v2], mainMesh.uv[v2]);
+                CustomVertexDataStruct datav3 = new(mainMesh.vertices[v3], mainMesh.normals[v3], mainMesh.uv[v3]);
+                AddTriangleToMesh(datav1, datav2, datav3, customRightMesh);
             }
             else
             {
@@ -93,42 +96,42 @@ public class MeshSlicer
 
                 if (v1NormalSide && !v2NormalSide && !v3NormalSide)
                 {
-                    Patch((v2, v3), v1, verticesRight, verticesLeft, planeNormal, planePoint, mainMesh);
+                    Patch((v2, v3), v1, customRightMesh, customLeftMesh, planeNormal, planePoint, mainMesh);
                 }
                 else if (v1NormalSide && v2NormalSide && !v3NormalSide)
                 {
-                    Patch((v1, v2), v3, verticesLeft, verticesRight, planeNormal, planePoint, mainMesh);
+                    Patch((v1, v2), v3, customLeftMesh, customRightMesh, planeNormal, planePoint, mainMesh);
                 }
                 else if (v1NormalSide && !v2NormalSide && v3NormalSide)
                 {
-                    Patch((v3, v1), v2, verticesLeft, verticesRight, planeNormal, planePoint, mainMesh);
+                    Patch((v3, v1), v2, customLeftMesh, customRightMesh, planeNormal, planePoint, mainMesh);
                 }
                 else if (!v1NormalSide && v2NormalSide && v3NormalSide)
                 {
-                    Patch((v2, v3), v1, verticesLeft, verticesRight, planeNormal, planePoint, mainMesh);
+                    Patch((v2, v3), v1, customLeftMesh, customRightMesh, planeNormal, planePoint, mainMesh);
                 }
                 else if (!v1NormalSide && v2NormalSide && !v3NormalSide)
                 {
-                    Patch((v3, v1), v2, verticesRight, verticesLeft, planeNormal, planePoint, mainMesh);
+                    Patch((v3, v1), v2, customRightMesh, customLeftMesh, planeNormal, planePoint, mainMesh);
                 }
                 else if (!v1NormalSide && !v2NormalSide && v3NormalSide)
                 {
-                    Patch((v1, v2), v3, verticesRight, verticesLeft, planeNormal, planePoint, mainMesh);
+                    Patch((v1, v2), v3, customRightMesh, customLeftMesh, planeNormal, planePoint, mainMesh);
                 }
             }
         }
 
-        leftMesh.vertices = verticesLeft.ToArray();
-        rightMesh.vertices = verticesRight.ToArray();
+        leftMesh.vertices = customLeftMesh.verticesList.ToArray();
+        rightMesh.vertices = customRightMesh.verticesList.ToArray();
 
-        leftMesh.normals = normalsLeft.ToArray();
-        rightMesh.normals = normalsRight.ToArray();
+        leftMesh.normals = customLeftMesh.normalsList.ToArray();
+        rightMesh.normals = customRightMesh.normalsList.ToArray();
 
-        leftMesh.uv = uvsLeft.ToArray();
-        rightMesh.uv = uvsRight.ToArray();
+        leftMesh.uv = customLeftMesh.uvsList.ToArray();
+        rightMesh.uv = customRightMesh.uvsList.ToArray();
 
-        leftMesh.triangles = trianglesLeft.ToArray();
-        rightMesh.triangles = trianglesRight.ToArray();
+        leftMesh.triangles = customLeftMesh.trianglesList.ToArray();
+        rightMesh.triangles = customRightMesh.trianglesList.ToArray();
 
         //Debug.Log("ORIGINAL INFO: vertices: " + mainMesh.vertices.Length + " triangles: " + mainMesh.triangles.Length);
         //Debug.Log("LEFT INFO: vertices: " + leftMesh.vertices.Length + " triangles: " + leftMesh.triangles.Length);
@@ -136,68 +139,47 @@ public class MeshSlicer
 
     }
 
-
-    private static void AddTriangleToMesh(int v1Index, int v2Index, int v3Index, Mesh mainMesh,
-                                          List<Vector3> verticesList, List<Vector3> normalsList, List<Vector2> uvsList, List<int> trianglesList)
+    private static void AddTriangleToMesh(CustomVertexDataStruct v1, CustomVertexDataStruct v2, CustomVertexDataStruct v3, CustomMeshDataStruct customMesh)
     {
-        verticesList.Add(mainMesh.vertices[v1Index]);
-        verticesList.Add(mainMesh.vertices[v2Index]);
-        verticesList.Add(mainMesh.vertices[v3Index]);
-
-        normalsList.Add(mainMesh.normals[v1Index]);
-        normalsList.Add(mainMesh.normals[v2Index]);
-        normalsList.Add(mainMesh.normals[v3Index]);
-
-        uvsList.Add(mainMesh.uv[v1Index]);
-        uvsList.Add(mainMesh.uv[v2Index]);
-        uvsList.Add(mainMesh.uv[v3Index]);
-
-        trianglesList.Add(verticesList.Count - 3);
-        trianglesList.Add(verticesList.Count - 2);
-        trianglesList.Add(verticesList.Count - 1);
-    }
-
-    private static void AddTriangleToMesh(int v1Index, int v2Index, int v3Index, Mesh mainMesh, CustomMeshDataStruct customMesh)
-    {
-        customMesh.verticesList.Add(mainMesh.vertices[v1Index]);
-        customMesh.verticesList.Add(mainMesh.vertices[v2Index]);
-        customMesh.verticesList.Add(mainMesh.vertices[v3Index]);
-
-        customMesh.normalsList.Add(mainMesh.normals[v1Index]);
-        customMesh.normalsList.Add(mainMesh.normals[v2Index]);
-        customMesh.normalsList.Add(mainMesh.normals[v3Index]);
-
-        customMesh.uvsList.Add(mainMesh.uv[v1Index]);
-        customMesh.uvsList.Add(mainMesh.uv[v2Index]);
-        customMesh.uvsList.Add(mainMesh.uv[v3Index]);
+        AddVertexDataToMesh(v1, customMesh);
+        AddVertexDataToMesh(v2, customMesh);
+        AddVertexDataToMesh(v3, customMesh);
 
         customMesh.trianglesList.Add(customMesh.verticesList.Count - 3);
         customMesh.trianglesList.Add(customMesh.verticesList.Count - 2);
         customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
     }
 
-    private static void Patch((int,int) vIndexSameSide, int vIndexOppositeSide,
-                              List<Vector3> verticesListDuo, List<Vector3> verticesListSolo, Vector3 planeNormal, Vector3 planePoint, Mesh mainMesh)
+    private static void AddVertexDataToMesh(CustomVertexDataStruct vertexData, CustomMeshDataStruct customMesh)
+    {
+        customMesh.verticesList.Add(vertexData.vertex);
+        customMesh.normalsList.Add(vertexData.normal);
+        customMesh.uvsList.Add(vertexData.uv);
+    }
+
+    private static void Patch((int,int) vIndexSameSide, int vIndexOppositeSide, CustomMeshDataStruct customMeshSolo, CustomMeshDataStruct customMeshDuo,
+                              Vector3 planeNormal, Vector3 planePoint, Mesh mainMesh)
     {
         Vector3 lerpedVertex1 = FindLerpOnPlane(planeNormal, planePoint, mainMesh.vertices[vIndexSameSide.Item1], mainMesh.vertices[vIndexOppositeSide]);
         Vector3 lerpedVertex2 = FindLerpOnPlane(planeNormal, planePoint, mainMesh.vertices[vIndexSameSide.Item2], mainMesh.vertices[vIndexOppositeSide]);
 
-        //patch single, order of adding is important
-        verticesListSolo.Add(mainMesh.vertices[vIndexOppositeSide]);
+        Vector3 lerpedNormal1 = FindLerpOnPlane(planeNormal, planePoint, mainMesh.normals[vIndexSameSide.Item1], mainMesh.normals[vIndexOppositeSide]);
+        Vector3 lerpedNormal2 = FindLerpOnPlane(planeNormal, planePoint, mainMesh.normals[vIndexSameSide.Item2], mainMesh.normals[vIndexOppositeSide]);
 
+        Vector3 lerpedUVs1 = FindLerpOnPlane(planeNormal, planePoint, mainMesh.uv[vIndexSameSide.Item1], mainMesh.uv[vIndexOppositeSide]);
+        Vector3 lerpedUVs2 = FindLerpOnPlane(planeNormal, planePoint, mainMesh.uv[vIndexSameSide.Item2], mainMesh.uv[vIndexOppositeSide]);
+
+        //patch single, order of adding is important
+        CustomVertexDataStruct soloVertexData1 = new(mainMesh.vertices[vIndexOppositeSide], mainMesh.normals[vIndexOppositeSide], mainMesh.uv[vIndexOppositeSide]);
+        CustomVertexDataStruct lerpedVertexData1 = new(lerpedVertex1, lerpedNormal1, lerpedUVs1);
+        CustomVertexDataStruct lerpedVertexData2 = new(lerpedVertex2, lerpedNormal2, lerpedUVs2);
+        AddTriangleToMesh(soloVertexData1, lerpedVertexData1, lerpedVertexData2, customMeshSolo);
 
         //patch double
-        
-    }
-
-    private static void AddNewTriangleToMesh()
-    {
-
-    }
-
-    private static void PatchDouble()
-    {
-
+        CustomVertexDataStruct duoVertexData1 = new(mainMesh.vertices[vIndexSameSide.Item1], mainMesh.normals[vIndexSameSide.Item1], mainMesh.uv[vIndexSameSide.Item1]);
+        CustomVertexDataStruct duoVertexData2 = new(mainMesh.vertices[vIndexSameSide.Item2], mainMesh.normals[vIndexSameSide.Item2], mainMesh.uv[vIndexSameSide.Item2]);
+        AddTriangleToMesh(duoVertexData1, duoVertexData2, lerpedVertexData1, customMeshDuo);
+        AddTriangleToMesh(lerpedVertexData1, duoVertexData2, lerpedVertexData2, customMeshDuo);
     }
 
 
