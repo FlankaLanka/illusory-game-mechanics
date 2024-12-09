@@ -141,7 +141,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &106766719
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -372,7 +372,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 266493907}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -415,6 +415,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 266493907}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &420963295 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4283429878576995869, guid: 8f45cc4a1e2e2ed42a7d686054a0437e, type: 3}
+  m_PrefabInstance: {fileID: 1490370814}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &578176841
 GameObject:
   m_ObjectHideFlags: 0
@@ -972,8 +977,10 @@ MonoBehaviour:
   cutPlane: {fileID: 1328188530}
   planePoint: {x: 0, y: 0, z: 0}
   planeNormal: {x: 0, y: 0, z: -1}
-  gg: 1
-  objectToCut: {fileID: 106766718}
+  objectToCut: {fileID: 420963295}
+  left: {fileID: 0}
+  right: {fileID: 0}
+  lol: 0
 --- !u!1 &810660541
 GameObject:
   m_ObjectHideFlags: 0
@@ -1493,7 +1500,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1328188526}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.8, y: 5.56, z: 0.13}
+  m_LocalPosition: {x: 0.93, y: 5.56, z: 0.13}
   m_LocalScale: {x: 10.54, y: 10.54, z: 10.54}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -1671,7 +1678,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4283429878576995869, guid: 8f45cc4a1e2e2ed42a7d686054a0437e, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8f45cc4a1e2e2ed42a7d686054a0437e, type: 3}
@@ -1693,7 +1700,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!136 &1529773977
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1766,7 +1773,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1529773976}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -20.3, y: 4.7, z: -23.8}
+  m_LocalPosition: {x: 0, y: 5.81, z: 0}
   m_LocalScale: {x: 3.46, y: 3.46, z: 3.46}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -2249,7 +2256,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!64 &2124719372
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -2322,9 +2329,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2124719371}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 4.47, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 5, y: 5, z: 5}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 5

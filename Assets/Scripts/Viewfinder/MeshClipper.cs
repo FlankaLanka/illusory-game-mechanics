@@ -7,9 +7,11 @@ public class MeshClipper : MonoBehaviour
     public Vector3 planePoint;
     public Vector3 planeNormal;
 
-    public bool gg = false;
-
     public GameObject objectToCut;
+
+
+    public GameObject left, right;
+    public bool lol = false;
 
     private void Update()
     {
@@ -18,8 +20,10 @@ public class MeshClipper : MonoBehaviour
 
         if(Input.GetKeyDown(KeyCode.E))
         {
-            GameObject left, right;
+            //Destroy(left);
+            //Destroy(right);
             (left, right) = MeshSlicer.Cut(objectToCut, planeNormal, planePoint);
+            objectToCut.SetActive(false);
         }
     }
 }
