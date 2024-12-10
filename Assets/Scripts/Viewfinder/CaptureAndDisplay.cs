@@ -34,7 +34,7 @@ public class CaptureAndDisplay : MonoBehaviour
             return;
         }
 
-        Debug.Log("Press X to toggle camera. Press C to copy view. Press V to paste view.");
+        Debug.Log("Press X to toggle camera. Press C to copy view. Press V to paste view. (C and V only work when center camera is toggled on.)");
 
         renderTexture = new RenderTexture(Screen.width, Screen.height, 16, RenderTextureFormat.ARGB32);
         textureCamera.targetTexture = renderTexture;
@@ -84,19 +84,6 @@ public class CaptureAndDisplay : MonoBehaviour
     #region 3D Related
 
 
-    private void ShapeReality()
-    {
-        //remove everything in the way
-        TrimReality();
-
-        //install what we saved up
-        clipboard.position = transform.TransformPoint(startingPositionClipboard);
-        clipboard.rotation = transform.rotation * startingRotationClipboard;
-        clipboard.gameObject.SetActive(true);
-        ClearClipboard(clipboard);
-    }
-
-
     private void SnapshotReality()
     {
         Plane[] planes = GeometryUtility.CalculateFrustumPlanes(cutterCam);
@@ -135,6 +122,20 @@ public class CaptureAndDisplay : MonoBehaviour
         }
         startingPositionClipboard = transform.InverseTransformPoint(clipboard.position);
         startingRotationClipboard = Quaternion.Inverse(transform.rotation) * clipboard.rotation;
+        clipboard.gameObject.SetActive(false);
+    }
+
+
+    private void ShapeReality()
+    {
+        //remove everything in the way
+        TrimReality();
+
+        //install what we saved up
+        clipboard.position = transform.TransformPoint(startingPositionClipboard);
+        clipboard.rotation = transform.rotation * startingRotationClipboard;
+        clipboard.gameObject.SetActive(true);
+        ClearClipboard(clipboard);
     }
 
 
@@ -189,7 +190,7 @@ public class CaptureAndDisplay : MonoBehaviour
                 continue;
 
             // Check if the object's bounds intersect the frustum
-            if (GeometryUtility.TestPlanesAABB(frustumPlanes, objRenderer.bounds) && obj.GetComponent<Sliceable>())
+            if (obj.activeInHierarchy && obj.GetComponent<Sliceable>() && GeometryUtility.TestPlanesAABB(frustumPlanes, objRenderer.bounds))
             {
                 objectsInFrustum.Add(obj);
             }
