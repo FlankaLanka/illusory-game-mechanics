@@ -143,11 +143,11 @@ public class MeshSlicer
         }
 
         //patched plane here
-        AddCenterPoint(customLeftMesh, generatedVerticesLeft, -planeNormal);
-        PatchPlane(customLeftMesh, generatedVerticesLeft, -planeNormal);
+        //AddCenterPoint(customLeftMesh, generatedVerticesLeft, -planeNormal);
+        //PatchPlane(customLeftMesh, generatedVerticesLeft, -planeNormal);
 
-        AddCenterPoint(customRightMesh, generatedVerticesRight, planeNormal);
-        PatchPlane(customRightMesh, generatedVerticesRight, planeNormal);
+        //AddCenterPoint(customRightMesh, generatedVerticesRight, planeNormal);
+        //PatchPlane(customRightMesh, generatedVerticesRight, planeNormal);
 
 
         leftMesh.vertices = customLeftMesh.verticesList.ToArray();
