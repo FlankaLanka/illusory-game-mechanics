@@ -946,7 +946,6 @@ GameObject:
   - component: {fileID: 728346823}
   - component: {fileID: 728346822}
   - component: {fileID: 728346821}
-  - component: {fileID: 728346826}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -1055,25 +1054,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &728346826
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 728346819}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a8e72947a2374215b703ed17ba85d64, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cutPlane: {fileID: 1328188530}
-  planePoint: {x: 0, y: 0, z: 0}
-  planeNormal: {x: 0, y: 0, z: -1}
-  objectToCut: {fileID: 550807173}
-  left: {fileID: 0}
-  right: {fileID: 0}
-  lol: 0
 --- !u!1 &810660541
 GameObject:
   m_ObjectHideFlags: 0
@@ -2477,10 +2457,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f97ac9a9f20d64323bfc7958d03a7dcd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  viewfinderCamera: {fileID: 1101555931}
+  textureCamera: {fileID: 1101555931}
   displayPlaneRenderer: {fileID: 1586522103}
   sidePlaneRenderer: {fileID: 838668348}
-  customFrustum: {fileID: 0}
   canPaste: 0
   canCopy: 1
   cutterCam: {fileID: 2123223257}

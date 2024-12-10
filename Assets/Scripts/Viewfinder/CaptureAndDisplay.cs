@@ -6,7 +6,7 @@ using static UnityEditor.Rendering.CameraUI;
 public class CaptureAndDisplay : MonoBehaviour
 {
     [Header("2D visual related")]
-    public Camera viewfinderCamera;
+    public Camera textureCamera;
     public Renderer displayPlaneRenderer;
     public Renderer sidePlaneRenderer;
 
@@ -17,18 +17,18 @@ public class CaptureAndDisplay : MonoBehaviour
     private float brightnessMultiplier = 1.25f;
 
     [Header("3D visual related")]
-    public bool canPaste = false;
-    public bool canCopy = true;
-
     public Camera cutterCam;
     public Transform clipboard;
+
+    private bool canPaste = false;
+    private bool canCopy = true;
 
     private Vector3 startingPositionClipboard;
     private Quaternion startingRotationClipboard;
 
     void Start()
     {
-        if (viewfinderCamera == null || displayPlaneRenderer == null)
+        if (textureCamera == null || displayPlaneRenderer == null)
         {
             Debug.LogError("Viewfinder Camera or Display Plane Renderer is not assigned.");
             return;
@@ -36,7 +36,7 @@ public class CaptureAndDisplay : MonoBehaviour
 
         whiteTexture = CreateWhiteTexture(256, 256);
         renderTexture = new RenderTexture(Screen.width, Screen.height, 16, RenderTextureFormat.ARGB32);
-        viewfinderCamera.targetTexture = renderTexture;
+        textureCamera.targetTexture = renderTexture;
     }
 
     private void Update()
@@ -47,10 +47,10 @@ public class CaptureAndDisplay : MonoBehaviour
         }
         if(Input.GetKeyDown(KeyCode.C))
         {
-            if (!canCopy)
+            if (!canCopy || !displayPlaneRenderer.gameObject.activeInHierarchy)
                 return;
 
-            Debug.Log("TAKING PIC");
+            //Debug.Log("TAKING PIC");
 
             TakePicture();
             SnapshotReality();
@@ -60,7 +60,7 @@ public class CaptureAndDisplay : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.V))
         {
-            if (!canPaste)
+            if (!canPaste || !displayPlaneRenderer.gameObject.activeInHierarchy)
                 return;
 
             ShapeReality();
@@ -80,18 +80,18 @@ public class CaptureAndDisplay : MonoBehaviour
 
     #region 3D Related
 
+
     private void ShapeReality()
     {
         //remove everything in the way
         TrimReality();
 
-        //install what we saved up before in place
+        //install what we saved up
         clipboard.position = transform.TransformPoint(startingPositionClipboard);
         clipboard.rotation = transform.rotation * startingRotationClipboard;
         clipboard.gameObject.SetActive(true);
         ClearClipboard(clipboard);
     }
-
 
 
     private void SnapshotReality()
@@ -240,7 +240,7 @@ public class CaptureAndDisplay : MonoBehaviour
 
         RenderTexture.active = null;
 
-        Debug.Log("PIC TAKEN");
+        //Debug.Log("PIC TAKEN");
     }
 
 
@@ -254,8 +254,6 @@ public class CaptureAndDisplay : MonoBehaviour
 
         int originalWidth = originalTexture.width;
         int originalHeight = originalTexture.height;
-        Debug.Log(originalWidth + " " + originalHeight);
-
         // Ensure crop dimensions are valid
         if (cropWidth <= 0 || cropHeight <= 0 || cropWidth > originalWidth || cropHeight > originalHeight)
         {
