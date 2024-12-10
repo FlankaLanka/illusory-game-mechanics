@@ -578,7 +578,7 @@ Light:
   m_RenderMode: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 197047
   m_RenderingLayerMask: 1
   m_Lightmapping: 4
   m_LightShadowCasterMode: 0
@@ -2266,8 +2266,12 @@ MonoBehaviour:
   viewfinderCamera: {fileID: 1101555931}
   displayPlaneRenderer: {fileID: 1586522103}
   sidePlaneRenderer: {fileID: 838668348}
+  customFrustum: {fileID: 0}
+  canShapeReality: 0
+  canTakeSnapshot: 1
   capturedImage: {fileID: 0}
   croppedTexture: {fileID: 0}
+  brightnessMultiplier: 1.25
 --- !u!1 &1891654282
 GameObject:
   m_ObjectHideFlags: 0

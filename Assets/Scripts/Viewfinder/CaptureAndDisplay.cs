@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class CaptureAndDisplay : MonoBehaviour
 {
@@ -6,10 +7,15 @@ public class CaptureAndDisplay : MonoBehaviour
     public Renderer displayPlaneRenderer;
     public Renderer sidePlaneRenderer;
 
-    private RenderTexture renderTexture;
+    public CustomCameraFrustum customFrustum;
+    public bool canShapeReality = false;
+    public bool canTakeSnapshot = true;
 
-    public Texture2D capturedImage;
-    public Texture2D croppedTexture;
+    private RenderTexture renderTexture;
+    public Texture2D capturedImage; //private later
+    public Texture2D croppedTexture; //private later
+
+    public float brightnessMultiplier = 1f;
 
     void Start()
     {
@@ -27,12 +33,37 @@ public class CaptureAndDisplay : MonoBehaviour
 
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.B))
+        if(Input.GetKeyDown(KeyCode.C))
         {
+            if (!canTakeSnapshot)
+                return;
+
             Debug.Log("TAKING PIC");
             TakePicture();
-        }    
+            CaptureReality();
+        }
+        else if (Input.GetKeyDown(KeyCode.V))
+        {
+            TryShapeReality();
+        }
     }
+
+    private void CaptureReality()
+    {
+
+    }
+
+
+    private void TryShapeReality()
+    {
+        if (!canShapeReality)
+            return;
+
+        canShapeReality = false;
+
+
+    }
+
 
     public void TakePicture()
     {
@@ -49,8 +80,8 @@ public class CaptureAndDisplay : MonoBehaviour
         capturedImage.Apply();
         displayPlaneRenderer.material.SetTexture("_PortalRenderTexture", capturedImage);
 
-        //how many of the big plane picture does it take to fill the screen? About 2.5 width and 1.5 height, accurate enough for now
-        croppedTexture = CropTexture(capturedImage, (int)(capturedImage.width / (2.5f)), (int)(capturedImage.height / (1.5f))); 
+        //how many of the planes does it take to fill the screen? About 2.5 width and 1.5 height, accurate enough for now
+        croppedTexture = CropTexture(capturedImage, (int)(capturedImage.width / (2.5f)), (int)(capturedImage.height / (1.5f)), brightnessMultiplier); 
         sidePlaneRenderer.material.mainTexture = croppedTexture;
 
         RenderTexture.active = null;
@@ -67,7 +98,7 @@ public class CaptureAndDisplay : MonoBehaviour
         }
     }
 
-    private Texture2D CropTexture(Texture2D originalTexture, int cropWidth, int cropHeight)
+    private Texture2D CropTexture(Texture2D originalTexture, int cropWidth, int cropHeight, float brightnessMultiplier)
     {
         if (originalTexture == null)
         {
@@ -96,6 +127,21 @@ public class CaptureAndDisplay : MonoBehaviour
         // Create a new Texture2D for the cropped texture
         Texture2D croppedTexture = new Texture2D(cropWidth, cropHeight, originalTexture.format, false);
         croppedTexture.SetPixels(pixelData);
+
+        // increase brightness
+        Color[] pixels = croppedTexture.GetPixels();
+        for (int i = 0; i < pixels.Length; i++)
+        {
+            Color pixel = pixels[i];
+            pixel.r = Mathf.Clamp01(pixel.r * brightnessMultiplier);
+            pixel.g = Mathf.Clamp01(pixel.g * brightnessMultiplier);
+            pixel.b = Mathf.Clamp01(pixel.b * brightnessMultiplier);
+            pixels[i] = new Color(pixel.r, pixel.g, pixel.b, pixel.a);
+        }
+        croppedTexture.SetPixels(pixels);
+
+
+
         croppedTexture.Apply();
 
         return croppedTexture;
