@@ -453,7 +453,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 550807173}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -21, y: 5.92, z: 5.25}
+  m_LocalPosition: {x: -13.42, y: 5.92, z: -0.72}
   m_LocalScale: {x: 3.99, y: 3.99, z: 3.99}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -1543,6 +1543,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1112907477}
   - component: {fileID: 1112907478}
+  - component: {fileID: 1112907479}
   m_Layer: 0
   m_Name: Experiments
   m_TagString: Untagged
@@ -1580,6 +1581,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df906c8fd7abe4a9e82e017a82b4f5a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1112907479
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1112907476}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a8e72947a2374215b703ed17ba85d64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cutPlane: {fileID: 1328188530}
+  planePoint: {x: 0, y: 0, z: 0}
+  planeNormal: {x: 0, y: 0, z: 0}
+  objectToCut: {fileID: 550807173}
+  left: {fileID: 0}
+  right: {fileID: 0}
+  lol: 0
 --- !u!1 &1119332919
 GameObject:
   m_ObjectHideFlags: 0

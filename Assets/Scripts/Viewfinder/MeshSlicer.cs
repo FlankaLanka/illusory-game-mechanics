@@ -65,9 +65,9 @@ public class MeshSlicer
         Mesh rightMesh = new();
         SeparateMesh(mainMeshFilter.mesh, leftMesh, rightMesh, originalObject.transform, planeNormal, planePoint);
 
-        //SaveMeshToFile(mainMeshFilter.mesh, "mainM");
-        //SaveMeshToFile(leftMesh, "leftM");
-        //SaveMeshToFile(rightMesh, "rightM");
+        SaveMeshToFile(mainMeshFilter.mesh, "mainM");
+        SaveMeshToFile(leftMesh, "leftM");
+        SaveMeshToFile(rightMesh, "rightM");
 
         return (ConstructGameObjectFromMesh(leftMesh, mainMeshRenderer, originalObject, " left"), ConstructGameObjectFromMesh(rightMesh, mainMeshRenderer, originalObject, " right"));
     }
@@ -79,7 +79,8 @@ public class MeshSlicer
         CustomMeshDataStruct customRightMesh = new();
 
         //used to check if vertex already in array
-        Dictionary<(Vector3, Vector3, Vector2), int> vertexDataMap = new();
+        Dictionary<(Vector3, Vector3, Vector2), int> vertexDataMapLeft = new();
+        Dictionary<(Vector3, Vector3, Vector2), int> vertexDataMapRight = new();
 
         //used for fixing the hollowness after cutting
         List<int> generatedVerticesLeft = new();
@@ -106,7 +107,7 @@ public class MeshSlicer
                 CustomVertexDataStruct datav1 = new(mainMesh.vertices[v1], mainMesh.normals[v1], mainMesh.uv[v1]);
                 CustomVertexDataStruct datav2 = new(mainMesh.vertices[v2], mainMesh.normals[v2], mainMesh.uv[v2]);
                 CustomVertexDataStruct datav3 = new(mainMesh.vertices[v3], mainMesh.normals[v3], mainMesh.uv[v3]);
-                AddTriangleToMesh(datav1, datav2, datav3, customLeftMesh, vertexDataMap, generatedVerticesLeft);
+                AddTriangleToMesh(datav1, datav2, datav3, customLeftMesh, vertexDataMapLeft, generatedVerticesLeft);
                 //Debug.Log("HERE IN LEFT");
             }
             else if (!v1NormalSide && !v2NormalSide && !v3NormalSide)
@@ -114,45 +115,62 @@ public class MeshSlicer
                 CustomVertexDataStruct datav1 = new(mainMesh.vertices[v1], mainMesh.normals[v1], mainMesh.uv[v1]);
                 CustomVertexDataStruct datav2 = new(mainMesh.vertices[v2], mainMesh.normals[v2], mainMesh.uv[v2]);
                 CustomVertexDataStruct datav3 = new(mainMesh.vertices[v3], mainMesh.normals[v3], mainMesh.uv[v3]);
-                AddTriangleToMesh(datav1, datav2, datav3, customRightMesh, vertexDataMap, generatedVerticesRight);
+                AddTriangleToMesh(datav1, datav2, datav3, customRightMesh, vertexDataMapRight, generatedVerticesRight);
                 //Debug.Log("HERE IN RIGHT");
             }
             else
             {
                 if (v1NormalSide && !v2NormalSide && !v3NormalSide)
                 {
-                    Patch((v2, v3), v1, customRightMesh, customLeftMesh, planeNormal, planePoint, mainMesh, meshTransform, vertexDataMap, generatedVerticesRight, generatedVerticesLeft);
+                    Patch((v2, v3), v1, customRightMesh, customLeftMesh, planeNormal, planePoint, mainMesh, meshTransform, vertexDataMapRight, vertexDataMapLeft, generatedVerticesRight, generatedVerticesLeft);
                 }
                 else if (v1NormalSide && v2NormalSide && !v3NormalSide)
                 {
-                    Patch((v1, v2), v3, customLeftMesh, customRightMesh, planeNormal, planePoint, mainMesh, meshTransform, vertexDataMap, generatedVerticesLeft, generatedVerticesRight);
+                    Patch((v1, v2), v3, customLeftMesh, customRightMesh, planeNormal, planePoint, mainMesh, meshTransform, vertexDataMapLeft, vertexDataMapRight, generatedVerticesLeft, generatedVerticesRight);
                 }
                 else if (v1NormalSide && !v2NormalSide && v3NormalSide)
                 {
-                    Patch((v3, v1), v2, customLeftMesh, customRightMesh, planeNormal, planePoint, mainMesh, meshTransform, vertexDataMap, generatedVerticesLeft, generatedVerticesRight);
+                    Patch((v3, v1), v2, customLeftMesh, customRightMesh, planeNormal, planePoint, mainMesh, meshTransform, vertexDataMapLeft, vertexDataMapRight, generatedVerticesLeft, generatedVerticesRight);
                 }
                 else if (!v1NormalSide && v2NormalSide && v3NormalSide)
                 {
-                    Patch((v2, v3), v1, customLeftMesh, customRightMesh, planeNormal, planePoint, mainMesh, meshTransform, vertexDataMap, generatedVerticesLeft, generatedVerticesRight);
+                    Patch((v2, v3), v1, customLeftMesh, customRightMesh, planeNormal, planePoint, mainMesh, meshTransform, vertexDataMapLeft, vertexDataMapRight, generatedVerticesLeft, generatedVerticesRight);
                 }
                 else if (!v1NormalSide && v2NormalSide && !v3NormalSide)
                 {
-                    Patch((v3, v1), v2, customRightMesh, customLeftMesh, planeNormal, planePoint, mainMesh, meshTransform, vertexDataMap, generatedVerticesRight, generatedVerticesLeft);
+                    Patch((v3, v1), v2, customRightMesh, customLeftMesh, planeNormal, planePoint, mainMesh, meshTransform, vertexDataMapRight, vertexDataMapLeft, generatedVerticesRight, generatedVerticesLeft);
                 }
                 else if (!v1NormalSide && !v2NormalSide && v3NormalSide)
                 {
-                    Patch((v1, v2), v3, customRightMesh, customLeftMesh, planeNormal, planePoint, mainMesh, meshTransform, vertexDataMap, generatedVerticesRight, generatedVerticesLeft);
+                    Patch((v1, v2), v3, customRightMesh, customLeftMesh, planeNormal, planePoint, mainMesh, meshTransform, vertexDataMapRight, vertexDataMapLeft, generatedVerticesRight, generatedVerticesLeft);
                 }
                 //Debug.Log("HERE IN SLICE");
             }
         }
 
         //patched plane here
-        //AddCenterPoint(customLeftMesh, generatedVerticesLeft, -planeNormal);
-        //PatchPlane(customLeftMesh, generatedVerticesLeft, -planeNormal);
+        AddCenterPoint(customLeftMesh, generatedVerticesLeft, -planeNormal);
+        PatchPlane(customLeftMesh, generatedVerticesLeft, -planeNormal);
+        SelectionSortAngles(generatedVerticesLeft, customLeftMesh, customLeftMesh.verticesList[customLeftMesh.verticesList.Count - 1]);
 
-        //AddCenterPoint(customRightMesh, generatedVerticesRight, planeNormal);
-        //PatchPlane(customRightMesh, generatedVerticesRight, planeNormal);
+        Debug.Log("CHECKPOINTTTTTTTTTT");
+        for (int i = 0; i < generatedVerticesLeft.Count; i++)
+        {
+            Debug.Log(customLeftMesh.verticesList[generatedVerticesLeft[i]] + " Index is " + generatedVerticesLeft[i]);
+        }
+
+        foreach (var entry in vertexDataMapLeft)
+        {
+            var key = entry.Key;
+            int value = entry.Value;
+
+            Debug.Log($"Key: Vertex = {key.Item1}, Normal = {key.Item2}, UV = {key.Item3}, Value: {value}");
+        }
+
+
+        AddCenterPoint(customRightMesh, generatedVerticesRight, planeNormal);
+        PatchPlane(customRightMesh, generatedVerticesRight, planeNormal);
+        SelectionSortAngles(generatedVerticesRight, customRightMesh, customRightMesh.verticesList[customRightMesh.verticesList.Count - 1]);
 
 
         leftMesh.vertices = customLeftMesh.verticesList.ToArray();
@@ -219,64 +237,68 @@ public class MeshSlicer
     private static void AddTriangleToMesh(CustomVertexDataStruct v1, CustomVertexDataStruct v2, CustomVertexDataStruct v3, CustomMeshDataStruct customMesh,
                                           Dictionary<(Vector3, Vector3, Vector2), int> vertexDataMap, List<int> generatedVertices)
     {
-        //if (vertexDataMap.ContainsKey((v1.vertex, v1.normal, v1.uv)))
-        //{
-        //    customMesh.trianglesList.Add(vertexDataMap[(v1.vertex, v1.normal, v1.uv)]);
-        //}
-        //else
-        //{
-        //    AddVertexDataToMesh(v1, customMesh);
-        //    customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
-        //    if (v1.generated)
-        //        generatedVertices.Add(customMesh.verticesList.Count - 1);
+        //Debug.Log(v1.vertex + " L " + v2.vertex + v3.vertex);
+        
+        if (vertexDataMap.ContainsKey((v1.vertex, v1.normal, v1.uv)))
+        {
+            customMesh.trianglesList.Add(vertexDataMap[(v1.vertex, v1.normal, v1.uv)]);
+        }
+        else
+        {
+            AddVertexDataToMesh(v1, customMesh);
+            customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
+            if (v1.generated)
+                generatedVertices.Add(customMesh.verticesList.Count - 1);
 
-        //    vertexDataMap.Add((v1.vertex, v1.normal, v1.uv), customMesh.verticesList.Count - 1);
-        //}
+            vertexDataMap[(v1.vertex, v1.normal, v1.uv)] = customMesh.verticesList.Count - 1;
+        }
 
-        //if (vertexDataMap.ContainsKey((v2.vertex, v2.normal, v2.uv)))
-        //{
-        //    customMesh.trianglesList.Add(vertexDataMap[(v2.vertex, v2.normal, v2.uv)]);
-        //}
-        //else
-        //{
-        //    AddVertexDataToMesh(v2, customMesh);
-        //    customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
+        if (vertexDataMap.ContainsKey((v2.vertex, v2.normal, v2.uv)))
+        {
+            customMesh.trianglesList.Add(vertexDataMap[(v2.vertex, v2.normal, v2.uv)]);
+        }
+        else
+        {
+            AddVertexDataToMesh(v2, customMesh);
+            customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
 
-        //    if (v2.generated)
-        //        generatedVertices.Add(customMesh.verticesList.Count - 1);
+            if (v2.generated)
+                generatedVertices.Add(customMesh.verticesList.Count - 1);
 
-        //    vertexDataMap.Add((v2.vertex, v2.normal, v2.uv), customMesh.verticesList.Count - 1);
-        //}
+            vertexDataMap[(v2.vertex, v2.normal, v2.uv)] = customMesh.verticesList.Count - 1;
+        }
 
-        //if (vertexDataMap.ContainsKey((v3.vertex, v3.normal, v3.uv)))
-        //{
-        //    customMesh.trianglesList.Add(vertexDataMap[(v3.vertex, v3.normal, v3.uv)]);
-        //}
-        //else
-        //{
-        //    AddVertexDataToMesh(v3, customMesh);
-        //    customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
+        if (vertexDataMap.ContainsKey((v3.vertex, v3.normal, v3.uv)))
+        {
+            customMesh.trianglesList.Add(vertexDataMap[(v3.vertex, v3.normal, v3.uv)]);
+        }
+        else
+        {
+            AddVertexDataToMesh(v3, customMesh);
+            customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
 
-        //    if (v3.generated)
-        //        generatedVertices.Add(customMesh.verticesList.Count - 1);
+            if (v3.generated)
+                generatedVertices.Add(customMesh.verticesList.Count - 1);
 
-        //    vertexDataMap.Add((v3.vertex, v3.normal, v3.uv), customMesh.verticesList.Count - 1);
-        //}
+            vertexDataMap[(v3.vertex, v3.normal, v3.uv)] = customMesh.verticesList.Count - 1;
+        }
 
-        AddVertexDataToMesh(v1, customMesh);
-        AddVertexDataToMesh(v2, customMesh);
-        AddVertexDataToMesh(v3, customMesh);
+        //return;
 
-        customMesh.trianglesList.Add(customMesh.verticesList.Count - 3);
-        customMesh.trianglesList.Add(customMesh.verticesList.Count - 2);
-        customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
+        //AddVertexDataToMesh(v1, customMesh);
+        //AddVertexDataToMesh(v2, customMesh);
+        //AddVertexDataToMesh(v3, customMesh);
 
-        if (v1.generated)
-            generatedVertices.Add(customMesh.verticesList.Count - 3);
-        if (v2.generated)
-            generatedVertices.Add(customMesh.verticesList.Count - 2);
-        if (v3.generated)
-            generatedVertices.Add(customMesh.verticesList.Count - 1);
+        //customMesh.trianglesList.Add(customMesh.verticesList.Count - 3);
+        //customMesh.trianglesList.Add(customMesh.verticesList.Count - 2);
+        //customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
+
+        //if (v1.generated)
+        //    generatedVertices.Add(customMesh.verticesList.Count - 3);
+        //if (v2.generated)
+        //    generatedVertices.Add(customMesh.verticesList.Count - 2);
+        //if (v3.generated)
+        //    generatedVertices.Add(customMesh.verticesList.Count - 1);
     }
 
     private static void AddVertexDataToMesh(CustomVertexDataStruct vertexData, CustomMeshDataStruct customMesh)
@@ -287,8 +309,8 @@ public class MeshSlicer
     }
 
     private static void Patch((int,int) vIndexSameSide, int vIndexOppositeSide, CustomMeshDataStruct customMeshDuo, CustomMeshDataStruct customMeshSolo,
-                              Vector3 planeNormal, Vector3 planePoint, Mesh mainMesh, Transform meshTransform, Dictionary<(Vector3, Vector3, Vector2), int> vertexDataMap,
-                              List<int> generatedVerticesDuo, List<int> generatedVerticesSolo)
+                              Vector3 planeNormal, Vector3 planePoint, Mesh mainMesh, Transform meshTransform, Dictionary<(Vector3, Vector3, Vector2), int> vertexDataMapSolo,
+                              Dictionary<(Vector3, Vector3, Vector2), int> vertexDataMapDuo, List<int> generatedVerticesDuo, List<int> generatedVerticesSolo)
     {
 
         float lerpTime1 = FindLerpOnPlane(planeNormal, planePoint, meshTransform.TransformPoint(mainMesh.vertices[vIndexSameSide.Item1]), meshTransform.TransformPoint(mainMesh.vertices[vIndexOppositeSide]));
@@ -309,13 +331,13 @@ public class MeshSlicer
 
         //patch single, order of adding is important
         CustomVertexDataStruct soloVertexData1 = new(mainMesh.vertices[vIndexOppositeSide], mainMesh.normals[vIndexOppositeSide], mainMesh.uv[vIndexOppositeSide]);
-        AddTriangleToMesh(soloVertexData1, lerpedVertexData1, lerpedVertexData2, customMeshSolo, vertexDataMap, generatedVerticesSolo);
+        AddTriangleToMesh(soloVertexData1, lerpedVertexData1, lerpedVertexData2, customMeshSolo, vertexDataMapSolo, generatedVerticesSolo);
 
         //patch double
         CustomVertexDataStruct duoVertexData1 = new(mainMesh.vertices[vIndexSameSide.Item1], mainMesh.normals[vIndexSameSide.Item1], mainMesh.uv[vIndexSameSide.Item1]);
         CustomVertexDataStruct duoVertexData2 = new(mainMesh.vertices[vIndexSameSide.Item2], mainMesh.normals[vIndexSameSide.Item2], mainMesh.uv[vIndexSameSide.Item2]);
-        AddTriangleToMesh(duoVertexData1, duoVertexData2, lerpedVertexData1, customMeshDuo, vertexDataMap, generatedVerticesDuo);
-        AddTriangleToMesh(lerpedVertexData1, duoVertexData2, lerpedVertexData2, customMeshDuo, vertexDataMap, generatedVerticesDuo);
+        AddTriangleToMesh(duoVertexData1, duoVertexData2, lerpedVertexData1, customMeshDuo, vertexDataMapDuo, generatedVerticesDuo);
+        AddTriangleToMesh(lerpedVertexData1, duoVertexData2, lerpedVertexData2, customMeshDuo, vertexDataMapDuo, generatedVerticesDuo);
     }
 
 
@@ -332,6 +354,32 @@ public class MeshSlicer
 
 
     #region MathHelpers
+
+    public static void SelectionSortAngles(List<int> generatedVertices, CustomMeshDataStruct customMesh, Vector3 center)
+    {
+        for (int i = 0; i < generatedVertices.Count; i++)
+        {
+            for (int j = i + 1; j < generatedVertices.Count; j++)
+            {
+                if (V1HasSmallerAngle(customMesh.verticesList[generatedVertices[j]], customMesh.verticesList[generatedVertices[i]], center))
+                {
+                    int temp = generatedVertices[j];
+                    generatedVertices[j] = generatedVertices[i];
+                    generatedVertices[i] = temp;
+                }
+            }
+        }
+    }
+
+
+    public static bool V1HasSmallerAngle(Vector3 v1, Vector3 v2, Vector3 center)
+    {
+        float angle1 = Mathf.Atan2(v1.z - center.z, v1.x - center.x);
+        float angle2 = Mathf.Atan2(v2.z - center.z, v2.x - center.x);
+
+        return angle1 < angle2;
+    }
+
 
     private static bool OnNormalSideOfPlane(Vector3 planeNormal, Vector3 planePoint, Vector3 vertexPoint)
     {
