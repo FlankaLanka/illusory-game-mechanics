@@ -133,7 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 96532789}
   m_Layer: 0
-  m_Name: Reality
+  m_Name: Clipboard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2481,10 +2481,10 @@ MonoBehaviour:
   displayPlaneRenderer: {fileID: 1586522103}
   sidePlaneRenderer: {fileID: 838668348}
   customFrustum: {fileID: 0}
-  canShapeReality: 0
-  canTakeSnapshot: 1
+  canPaste: 0
+  canCopy: 1
   cutterCam: {fileID: 2123223257}
-  shapedRealityParent: {fileID: 96532789}
+  clipboard: {fileID: 96532789}
 --- !u!1 &1891654282
 GameObject:
   m_ObjectHideFlags: 0
