@@ -149,9 +149,9 @@ public class MeshSlicer
         }
 
         //patched plane here
-        AddCenterPoint(customLeftMesh, generatedVerticesLeft, -planeNormal);
+        Vector3 leftCenter = AddCenterPoint(customLeftMesh, generatedVerticesLeft, -planeNormal);
+        SelectionSortAngles(generatedVerticesLeft, customLeftMesh, leftCenter, -planeNormal);
         PatchPlane(customLeftMesh, generatedVerticesLeft, -planeNormal);
-        SelectionSortAngles(generatedVerticesLeft, customLeftMesh, customLeftMesh.verticesList[customLeftMesh.verticesList.Count - 1]);
 
         Debug.Log("CHECKPOINTTTTTTTTTT");
         for (int i = 0; i < generatedVerticesLeft.Count; i++)
@@ -164,13 +164,13 @@ public class MeshSlicer
             var key = entry.Key;
             int value = entry.Value;
 
-            Debug.Log($"Key: Vertex = {key.Item1}, Normal = {key.Item2}, UV = {key.Item3}, Value: {value}");
+            //Debug.Log($"Key: Vertex = {key.Item1}, Normal = {key.Item2}, UV = {key.Item3}, Value: {value}");
         }
 
 
-        AddCenterPoint(customRightMesh, generatedVerticesRight, planeNormal);
+        Vector3 rightCenter = AddCenterPoint(customRightMesh, generatedVerticesRight, planeNormal);
+        SelectionSortAngles(generatedVerticesRight, customRightMesh, rightCenter, planeNormal);
         PatchPlane(customRightMesh, generatedVerticesRight, planeNormal);
-        SelectionSortAngles(generatedVerticesRight, customRightMesh, customRightMesh.verticesList[customRightMesh.verticesList.Count - 1]);
 
 
         leftMesh.vertices = customLeftMesh.verticesList.ToArray();
@@ -186,7 +186,9 @@ public class MeshSlicer
         rightMesh.triangles = customRightMesh.trianglesList.ToArray();
     }
 
-    private static void AddCenterPoint(CustomMeshDataStruct customMesh, List<int> generatedVertices, Vector3 planeNormal)
+
+
+    private static Vector3 AddCenterPoint(CustomMeshDataStruct customMesh, List<int> generatedVertices, Vector3 planeNormal)
     {
         CustomVertexDataStruct output = new();
 
@@ -207,30 +209,64 @@ public class MeshSlicer
         customMesh.verticesList.Add(output.vertex);
         customMesh.normalsList.Add(planeNormal);
         customMesh.uvsList.Add(output.uv);
+
+        return output.vertex;
     }
 
     private static void PatchPlane(CustomMeshDataStruct customMesh, List<int> generatedVertices, Vector3 planeNormal)
     {
+        Vector3 a, b, c;
+
+        Debug.Log("TRAIGGE");
         for(int i = 0; i < generatedVertices.Count - 1; i++)
         {
-            Vector3 c = customMesh.verticesList[customMesh.verticesList.Count - 1];
-            Vector3 a = customMesh.verticesList[generatedVertices[i]];
-            Vector3 b = customMesh.verticesList[generatedVertices[i+1]];
+            c = customMesh.verticesList[customMesh.verticesList.Count - 1];
+            a = customMesh.verticesList[generatedVertices[i]];
+            b = customMesh.verticesList[generatedVertices[i+1]];
 
             if(Vector3.Dot(Vector3.Cross(a - c, b - c), planeNormal) > 0)
             {
                 customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
                 customMesh.trianglesList.Add(generatedVertices[i]);
                 customMesh.trianglesList.Add(generatedVertices[i + 1]);
+
+                Debug.Log("created triangle " + (customMesh.verticesList.Count - 1) + " " + generatedVertices[i] + " " + generatedVertices[i + 1]);
             }
             else
             {
                 customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
                 customMesh.trianglesList.Add(generatedVertices[i + 1]);
                 customMesh.trianglesList.Add(generatedVertices[i]);
+
+                Debug.Log("created triangle " + (customMesh.verticesList.Count - 1) + " " + generatedVertices[i + 1] + " " + generatedVertices[i]);
             }
 
 
+        }
+
+        if (generatedVertices.Count < 3 || customMesh.verticesList.Count < 3)
+            return;
+
+        //add last triangle (loop around)
+        c = customMesh.verticesList[customMesh.verticesList.Count - 1];
+        a = customMesh.verticesList[customMesh.verticesList.Count - 2];
+        b = customMesh.verticesList[0];
+
+        if (Vector3.Dot(Vector3.Cross(a - c, b - c), planeNormal) > 0)
+        {
+            customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
+            customMesh.trianglesList.Add(customMesh.verticesList.Count - 2);
+            customMesh.trianglesList.Add(0);
+
+            Debug.Log("created triangle " + (customMesh.verticesList.Count - 1) + " " + (customMesh.verticesList.Count - 2) + " " + "0");
+        }
+        else
+        {
+            customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
+            customMesh.trianglesList.Add(0);
+            customMesh.trianglesList.Add(customMesh.verticesList.Count - 2);
+
+            Debug.Log("created triangle " + (customMesh.verticesList.Count - 1) + " " + "0" + " " + (customMesh.verticesList.Count - 2));
         }
     }
 
@@ -355,13 +391,13 @@ public class MeshSlicer
 
     #region MathHelpers
 
-    public static void SelectionSortAngles(List<int> generatedVertices, CustomMeshDataStruct customMesh, Vector3 center)
+    public static void SelectionSortAngles(List<int> generatedVertices, CustomMeshDataStruct customMesh, Vector3 center, Vector3 planeNormal)
     {
         for (int i = 0; i < generatedVertices.Count; i++)
         {
             for (int j = i + 1; j < generatedVertices.Count; j++)
             {
-                if (V1HasSmallerAngle(customMesh.verticesList[generatedVertices[j]], customMesh.verticesList[generatedVertices[i]], center))
+                if (V1HasSmallerAngle(customMesh.verticesList[generatedVertices[j]], customMesh.verticesList[generatedVertices[i]], center, planeNormal))
                 {
                     int temp = generatedVertices[j];
                     generatedVertices[j] = generatedVertices[i];
@@ -372,14 +408,37 @@ public class MeshSlicer
     }
 
 
-    public static bool V1HasSmallerAngle(Vector3 v1, Vector3 v2, Vector3 center)
+    public static bool V1HasSmallerAngle(Vector3 v1, Vector3 v2, Vector3 center, Vector3 planeNormal)
     {
-        float angle1 = Mathf.Atan2(v1.z - center.z, v1.x - center.x);
-        float angle2 = Mathf.Atan2(v2.z - center.z, v2.x - center.x);
+        // Calculate two orthogonal basis vectors in the plane
+        Vector3 u = Vector3.Cross(planeNormal, Vector3.up);
+        if (u.magnitude < 0.0001f) // Handle edge case where planeNormal is collinear with Vector3.up
+            u = Vector3.Cross(planeNormal, Vector3.right);
+        u.Normalize();
+        Vector3 v = Vector3.Cross(planeNormal, u);
+
+        // Project v1 and v2 onto the plane
+        Vector3 proj1 = ProjectOntoPlane(v1, center, planeNormal);
+        Vector3 proj2 = ProjectOntoPlane(v2, center, planeNormal);
+
+        // Compute vectors from the center point
+        Vector3 vec1 = proj1 - center;
+        Vector3 vec2 = proj2 - center;
+
+        // Calculate angles using atan2 in the plane's local coordinate system
+        float angle1 = Mathf.Atan2(Vector3.Dot(vec1, v), Vector3.Dot(vec1, u));
+        float angle2 = Mathf.Atan2(Vector3.Dot(vec2, v), Vector3.Dot(vec2, u));
 
         return angle1 < angle2;
     }
 
+    // Helper function: Project a point onto a plane
+    private static Vector3 ProjectOntoPlane(Vector3 point, Vector3 planePoint, Vector3 planeNormal)
+    {
+        Vector3 toPoint = point - planePoint;
+        float distance = Vector3.Dot(toPoint, planeNormal);
+        return point - planeNormal * distance;
+    }
 
     private static bool OnNormalSideOfPlane(Vector3 planeNormal, Vector3 planePoint, Vector3 vertexPoint)
     {
@@ -399,19 +458,14 @@ public class MeshSlicer
     {
         foreach (var point in points)
         {
-            // Compute the vector from the plane point to the current point
             Vector3 vectorToPoint = point - planePoint;
-
-            // Check if the dot product of the plane normal and the vector to the point is close to zero
             float distance = Vector3.Dot(planeNormal.normalized, vectorToPoint);
-
             if (Mathf.Abs(distance) > tolerance)
             {
-                return false; // Point is not on the plane
+                return false;
             }
         }
-
-        return true; // All points are on the plane
+        return true;
     }
 
     #endregion
