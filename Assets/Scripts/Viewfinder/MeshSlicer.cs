@@ -65,9 +65,9 @@ public class MeshSlicer
         Mesh rightMesh = new();
         SeparateMesh(mainMeshFilter.mesh, leftMesh, rightMesh, originalObject.transform, planeNormal, planePoint);
 
-        SaveMeshToFile(mainMeshFilter.mesh, "mainM");
-        SaveMeshToFile(leftMesh, "leftM");
-        SaveMeshToFile(rightMesh, "rightM");
+        //SaveMeshToFile(mainMeshFilter.mesh, "mainM");
+        //SaveMeshToFile(leftMesh, "leftM");
+        //SaveMeshToFile(rightMesh, "rightM");
 
         return (ConstructGameObjectFromMesh(leftMesh, mainMeshRenderer, originalObject, " left"), ConstructGameObjectFromMesh(rightMesh, mainMeshRenderer, originalObject, " right"));
     }
@@ -321,7 +321,7 @@ public class MeshSlicer
 
     private static GameObject ConstructGameObjectFromMesh(Mesh createdMesh, MeshRenderer originalMeshRenderer, GameObject originalObject, string side)
     {
-        GameObject g = new GameObject("Dupe of " + originalObject.name + side);
+        GameObject g = new GameObject("Dupe of " + originalObject.name + " " + side);
         g.AddComponent<MeshFilter>().mesh = createdMesh;
         g.AddComponent<MeshRenderer>().material = originalMeshRenderer.material;
         g.AddComponent<Sliceable>();

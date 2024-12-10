@@ -19,12 +19,11 @@ public class CaptureAndDisplay : MonoBehaviour
     public bool canShapeReality = false;
     public bool canTakeSnapshot = true;
 
-
     public Camera cutterCam;
-    public Transform topLeftPositions;
-    public Transform bottomRightPositions;
-
     public Transform shapedRealityParent;
+
+    private Vector3 startingPositionReality;
+    private Quaternion startingRotationReality;
 
     void Start()
     {
@@ -36,8 +35,6 @@ public class CaptureAndDisplay : MonoBehaviour
 
         renderTexture = new RenderTexture(Screen.width, Screen.height, 16, RenderTextureFormat.ARGB32);
         viewfinderCamera.targetTexture = renderTexture;
-
-        Debug.Log("Viewfinder setup complete.");
     }
 
     private void Update()
@@ -48,8 +45,16 @@ public class CaptureAndDisplay : MonoBehaviour
                 return;
 
             Debug.Log("TAKING PIC");
+
             TakePicture();
-            CaptureReality();
+
+            GameObject[] output = SnapshotReality();
+            foreach(GameObject obj in output)
+            {
+                obj.transform.parent = shapedRealityParent;
+            }
+            startingPositionReality = transform.InverseTransformPoint(shapedRealityParent.position);
+            startingRotationReality = Quaternion.Inverse(transform.rotation) * shapedRealityParent.rotation;
         }
         else if (Input.GetKeyDown(KeyCode.V))
         {
@@ -66,29 +71,41 @@ public class CaptureAndDisplay : MonoBehaviour
 
     #region 3D Related
 
-    private void CaptureReality()
+
+    private void ShapeReality()
     {
-        Plane[] cameraPlanes = GeometryUtility.CalculateFrustumPlanes(cutterCam);
+        GameObject[] output = TrimReality();
 
-        //represent as normal and point
-        (Vector3, Vector3)[] planes = new (Vector3, Vector3)[6];
-        planes[0] = (cameraPlanes[0].normal, topLeftPositions.position);
-        planes[1] = (cameraPlanes[1].normal, bottomRightPositions.position);
-        planes[2] = (cameraPlanes[2].normal, topLeftPositions.position);
-        planes[3] = (cameraPlanes[3].normal, bottomRightPositions.position);
-        planes[4] = (cameraPlanes[4].normal, topLeftPositions.position);
-        //planePoints[5] = (cameraPlanes[5].normal, topLeftPositions.position);
+        //install what we saved up before in place
+        shapedRealityParent.position = transform.TransformPoint(startingPositionReality);
+        shapedRealityParent.rotation = transform.rotation * startingRotationReality;
 
-        GameObject[] objectsInFrustum = GameObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None);
+        shapedRealityParent.gameObject.SetActive(true);
 
-        for (int i = 0; i < 4; i++)
+        int childCount = shapedRealityParent.childCount;
+        for (int i = childCount - 1; i >= 0; i--)
         {
-            List<GameObject> updatedObjectsinFrustum = new();
+            Transform child = shapedRealityParent.GetChild(i);
+            child.parent = null;
+        }
 
-            foreach (GameObject obj in objectsInFrustum)
+        displayPlaneRenderer.gameObject.SetActive(false);
+
+    }
+
+    private GameObject[] SnapshotReality()
+    {
+        Plane[] planes = GeometryUtility.CalculateFrustumPlanes(cutterCam);
+        List<GameObject> originalObjects = GetObjectsInCameraFrustum(cutterCam);
+
+        for (int i = 0; i < 4; i++) //dont want to cull near/far (indices 4+5) plane
+        {
+            List<GameObject> leftObjects = new();
+
+            foreach (GameObject obj in originalObjects)
             {
                 GameObject left, right;
-                (left, right) = MeshSlicer.Cut(obj, planes[i].Item1, planes[i].Item2);
+                (left, right) = MeshSlicer.Cut(obj, planes[i].normal, planes[i].normal * -planes[i].distance);
 
                 Destroy(right);
 
@@ -98,61 +115,86 @@ public class CaptureAndDisplay : MonoBehaviour
                 }
                 else
                 {
-                    updatedObjectsinFrustum.Add(left);
+                    leftObjects.Add(left);
                 }
+
+                if (i > 0) //if these objects are already clones, destroy. They are clones if in iteration 1+
+                    Destroy(obj);
             }
-
-            objectsInFrustum = updatedObjectsinFrustum.ToArray();
+            originalObjects = leftObjects;
         }
 
-        foreach (GameObject obj in objectsInFrustum)
-        {
-            obj.transform.parent = shapedRealityParent;
-        }
+        return originalObjects.ToArray();
     }
 
 
-    private void ShapeReality()
+    private GameObject[] TrimReality()
     {
+        Plane[] planes = GeometryUtility.CalculateFrustumPlanes(cutterCam);
 
+        List<GameObject> originalObjects = GetObjectsInCameraFrustum(cutterCam);
+
+        for (int i = 0; i < 4; i++) //dont want to cull near/far (indices 4+5) plane
+        {
+            List<GameObject> leftObjects = new();
+            foreach (GameObject obj in originalObjects)
+            {
+                GameObject left, right;
+                (left,right) = MeshSlicer.Cut(obj, planes[i].normal, planes[i].normal * -planes[i].distance);
+
+                if (left == null || left.GetComponent<MeshFilter>().mesh.vertices.Length <= 0)
+                {
+                    Destroy(left);
+                }
+                else
+                {
+                    leftObjects.Add(left);
+                }
+
+                Destroy(obj);
+            }
+            originalObjects = leftObjects;
+        }
+
+        foreach(GameObject obj in originalObjects)
+        {
+            Destroy(obj);
+        }
+
+        return null;
     }
 
 
-
-    public static Vector3[] GetQuadCorners(GameObject quad)
+    public static List<GameObject> GetObjectsInCameraFrustum(Camera camera)
     {
-        MeshFilter meshFilter = quad.GetComponent<MeshFilter>();
-        if (meshFilter == null)
+        // Calculate the planes of the camera's frustum
+        Plane[] frustumPlanes = GeometryUtility.CalculateFrustumPlanes(camera);
+
+        // Get all objects in the scene
+        GameObject[] allObjects = GameObject.FindObjectsOfType<GameObject>();
+
+        // List to store objects within the frustum
+        List<GameObject> objectsInFrustum = new List<GameObject>();
+
+        foreach (GameObject obj in allObjects)
         {
-            Debug.LogError("The GameObject does not have a MeshFilter component.");
-            return null;
+            // Skip inactive objects
+            if (!obj.activeInHierarchy) continue;
+
+            // Get the object's renderer bounds
+            Renderer objRenderer = obj.GetComponent<Renderer>();
+            if (objRenderer == null) continue; // Skip if no renderer is present
+
+            // Check if the object's bounds intersect the frustum
+            if (GeometryUtility.TestPlanesAABB(frustumPlanes, objRenderer.bounds) && obj.GetComponent<Sliceable>())
+            {
+                objectsInFrustum.Add(obj);
+            }
         }
 
-        Mesh mesh = meshFilter.sharedMesh;
-        if (mesh == null || mesh.vertices.Length < 4)
-        {
-            Debug.LogError("The Mesh does not have enough vertices to form a quad.");
-            return null;
-        }
-
-        // Get the first 4 vertices in local space
-        Vector3[] localCorners = new Vector3[4]
-        {
-            mesh.vertices[0],
-            mesh.vertices[1],
-            mesh.vertices[2],
-            mesh.vertices[3]
-        };
-
-        // Convert local space vertices to world space
-        Vector3[] worldCorners = new Vector3[4];
-        for (int i = 0; i < 4; i++)
-        {
-            worldCorners[i] = quad.transform.TransformPoint(localCorners[i]);
-        }
-
-        return worldCorners;
+        return objectsInFrustum;
     }
+
 
     #endregion
 
@@ -236,9 +278,5 @@ public class CaptureAndDisplay : MonoBehaviour
 
 
     #endregion
-
-
-
-
 
 }
