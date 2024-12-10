@@ -214,16 +214,29 @@ public class MeshSlicer
 
     private static void PatchPlane(CustomMeshDataStruct customMesh, List<int> generatedVertices, Vector3 planeNormal)
     {
+        //int centerPointIndex = customMesh.verticesList.Count - 1;
+
+        ////need to create new vertices based on the generated vertices because normals need to be properly mapped
+
+        //for(int i = 0; i < generatedVertices.Count; i ++)
+        //{
+
+        //}
+
+
+
+        //return;
+
         Vector3 a, b, c;
 
         Debug.Log("TRIANGLES PATCHED PLANE");
-        for(int i = 0; i < generatedVertices.Count - 1; i++)
+        for (int i = 0; i < generatedVertices.Count - 1; i++)
         {
             c = customMesh.verticesList[customMesh.verticesList.Count - 1];
             a = customMesh.verticesList[generatedVertices[i]];
-            b = customMesh.verticesList[generatedVertices[i+1]];
+            b = customMesh.verticesList[generatedVertices[i + 1]];
 
-            if(Vector3.Dot(Vector3.Cross(a - c, b - c), planeNormal) > 0)
+            if (Vector3.Dot(Vector3.Cross(a - c, b - c), planeNormal) > 0)
             {
                 customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
                 customMesh.trianglesList.Add(generatedVertices[i]);
@@ -373,7 +386,6 @@ public class MeshSlicer
     private static GameObject ConstructGameObjectFromMesh(Mesh createdMesh, MeshRenderer originalMeshRenderer, GameObject originalObject, string side)
     {
         GameObject g = new GameObject(originalObject.name + " " + side);
-        createdMesh.RecalculateNormals();
         g.AddComponent<MeshFilter>().mesh = createdMesh;
         g.AddComponent<MeshRenderer>().material = originalMeshRenderer.material;
         g.AddComponent<Sliceable>();
