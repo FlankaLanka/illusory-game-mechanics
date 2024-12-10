@@ -163,7 +163,6 @@ public class MeshSlicer
         {
             var key = entry.Key;
             int value = entry.Value;
-
             //Debug.Log($"Key: Vertex = {key.Item1}, Normal = {key.Item2}, UV = {key.Item3}, Value: {value}");
         }
 
@@ -217,7 +216,7 @@ public class MeshSlicer
     {
         Vector3 a, b, c;
 
-        Debug.Log("TRAIGGE");
+        Debug.Log("TRIANGLES PATCHED PLANE");
         for(int i = 0; i < generatedVertices.Count - 1; i++)
         {
             c = customMesh.verticesList[customMesh.verticesList.Count - 1];
@@ -229,7 +228,6 @@ public class MeshSlicer
                 customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
                 customMesh.trianglesList.Add(generatedVertices[i]);
                 customMesh.trianglesList.Add(generatedVertices[i + 1]);
-
                 Debug.Log("created triangle " + (customMesh.verticesList.Count - 1) + " " + generatedVertices[i] + " " + generatedVertices[i + 1]);
             }
             else
@@ -237,11 +235,8 @@ public class MeshSlicer
                 customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
                 customMesh.trianglesList.Add(generatedVertices[i + 1]);
                 customMesh.trianglesList.Add(generatedVertices[i]);
-
                 Debug.Log("created triangle " + (customMesh.verticesList.Count - 1) + " " + generatedVertices[i + 1] + " " + generatedVertices[i]);
             }
-
-
         }
 
         if (generatedVertices.Count < 3 || customMesh.verticesList.Count < 3)
@@ -249,31 +244,29 @@ public class MeshSlicer
 
         //add last triangle (loop around)
         c = customMesh.verticesList[customMesh.verticesList.Count - 1];
-        a = customMesh.verticesList[customMesh.verticesList.Count - 2];
-        b = customMesh.verticesList[0];
+        a = customMesh.verticesList[generatedVertices[generatedVertices.Count - 1]];
+        b = customMesh.verticesList[generatedVertices[0]];
 
         if (Vector3.Dot(Vector3.Cross(a - c, b - c), planeNormal) > 0)
         {
             customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
-            customMesh.trianglesList.Add(customMesh.verticesList.Count - 2);
-            customMesh.trianglesList.Add(0);
-
-            Debug.Log("created triangle " + (customMesh.verticesList.Count - 1) + " " + (customMesh.verticesList.Count - 2) + " " + "0");
+            customMesh.trianglesList.Add(generatedVertices[generatedVertices.Count - 1]);
+            customMesh.trianglesList.Add(generatedVertices[0]);
+            Debug.Log("created triangle " + (customMesh.verticesList.Count - 1) + " " + generatedVertices[generatedVertices.Count - 1] + " " + generatedVertices[0]);
         }
         else
         {
             customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
-            customMesh.trianglesList.Add(0);
-            customMesh.trianglesList.Add(customMesh.verticesList.Count - 2);
-
-            Debug.Log("created triangle " + (customMesh.verticesList.Count - 1) + " " + "0" + " " + (customMesh.verticesList.Count - 2));
+            customMesh.trianglesList.Add(generatedVertices[0]);
+            customMesh.trianglesList.Add(generatedVertices[generatedVertices.Count - 1]);
+            Debug.Log("created triangle " + (customMesh.verticesList.Count - 1) + " " + generatedVertices[0] + " " + generatedVertices[generatedVertices.Count - 1]);
         }
     }
 
     private static void AddTriangleToMesh(CustomVertexDataStruct v1, CustomVertexDataStruct v2, CustomVertexDataStruct v3, CustomMeshDataStruct customMesh,
                                           Dictionary<(Vector3, Vector3, Vector2), int> vertexDataMap, List<int> generatedVertices)
     {
-        //Debug.Log(v1.vertex + " L " + v2.vertex + v3.vertex);
+        //check dictionary if vertex is already there
         
         if (vertexDataMap.ContainsKey((v1.vertex, v1.normal, v1.uv)))
         {
@@ -380,6 +373,7 @@ public class MeshSlicer
     private static GameObject ConstructGameObjectFromMesh(Mesh createdMesh, MeshRenderer originalMeshRenderer, GameObject originalObject, string side)
     {
         GameObject g = new GameObject(originalObject.name + " " + side);
+        createdMesh.RecalculateNormals();
         g.AddComponent<MeshFilter>().mesh = createdMesh;
         g.AddComponent<MeshRenderer>().material = originalMeshRenderer.material;
         g.AddComponent<Sliceable>();
