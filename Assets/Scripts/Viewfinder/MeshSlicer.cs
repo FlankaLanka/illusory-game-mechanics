@@ -321,7 +321,7 @@ public class MeshSlicer
 
     private static GameObject ConstructGameObjectFromMesh(Mesh createdMesh, MeshRenderer originalMeshRenderer, GameObject originalObject, string side)
     {
-        GameObject g = new GameObject("Dupe of " + originalObject.name + " " + side);
+        GameObject g = new GameObject(originalObject.name + " " + side);
         g.AddComponent<MeshFilter>().mesh = createdMesh;
         g.AddComponent<MeshRenderer>().material = originalMeshRenderer.material;
         g.AddComponent<Sliceable>();

@@ -9,11 +9,11 @@ public class CaptureAndDisplay : MonoBehaviour
     public Camera textureCamera;
     public Renderer displayPlaneRenderer;
     public Renderer sidePlaneRenderer;
+    public Texture2D blankTexture;
 
     private RenderTexture renderTexture;
     private Texture2D capturedImage;
     private Texture2D croppedTexture;
-    private Texture2D whiteTexture;
     private float brightnessMultiplier = 1.25f;
 
     [Header("3D visual related")]
@@ -34,9 +34,12 @@ public class CaptureAndDisplay : MonoBehaviour
             return;
         }
 
-        whiteTexture = CreateWhiteTexture(256, 256);
+        Debug.Log("Press X to toggle camera. Press C to copy view. Press V to paste view.");
+
         renderTexture = new RenderTexture(Screen.width, Screen.height, 16, RenderTextureFormat.ARGB32);
         textureCamera.targetTexture = renderTexture;
+
+        ClearImageBuffer();
     }
 
     private void Update()
@@ -99,7 +102,7 @@ public class CaptureAndDisplay : MonoBehaviour
         Plane[] planes = GeometryUtility.CalculateFrustumPlanes(cutterCam);
         List<GameObject> originalObjects = GetObjectsInCameraFrustum(cutterCam, planes);
 
-        for (int i = 0; i < 4; i++) //dont want to cull near/far (indices 4+5) plane
+        for (int i = 0; i < planes.Length; i++) //dont want to cull near/far (indices 4+5) plane
         {
             List<GameObject> leftObjects = new();
 
@@ -141,7 +144,7 @@ public class CaptureAndDisplay : MonoBehaviour
 
         List<GameObject> originalObjects = GetObjectsInCameraFrustum(cutterCam, planes);
 
-        for (int i = 0; i < 4; i++) //dont want to cull near/far (indices 4+5) plane
+        for (int i = 0; i < planes.Length; i++) //dont want to cull near/far (indices 4+5) plane
         {
             List<GameObject> leftObjects = new();
             foreach (GameObject obj in originalObjects)
@@ -215,8 +218,8 @@ public class CaptureAndDisplay : MonoBehaviour
     private void ClearImageBuffer()
     {
         displayPlaneRenderer.gameObject.SetActive(false);
-        displayPlaneRenderer.material.SetTexture("_PortalRenderTexture", whiteTexture);
-        sidePlaneRenderer.material.mainTexture = whiteTexture;
+        displayPlaneRenderer.material.SetTexture("_PortalRenderTexture", blankTexture);
+        sidePlaneRenderer.material.mainTexture = blankTexture;
     }
 
     public void TakePicture()
@@ -289,20 +292,6 @@ public class CaptureAndDisplay : MonoBehaviour
         croppedTexture.Apply();
 
         return croppedTexture;
-    }
-
-
-    Texture2D CreateWhiteTexture(int width, int height)
-    {
-        Texture2D texture = new Texture2D(width, height);
-        Color[] whitePixels = new Color[width * height];
-        for (int i = 0; i < whitePixels.Length; i++)
-        {
-            whitePixels[i] = Color.white;
-        }
-        texture.SetPixels(whitePixels);
-        texture.Apply();
-        return texture;
     }
 
     #endregion

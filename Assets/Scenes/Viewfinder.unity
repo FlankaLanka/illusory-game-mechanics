@@ -876,7 +876,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: d5226e1731bec4e9fb6830c3fa446983, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1499,8 +1499,8 @@ Camera:
   m_GameObject: {fileID: 1101555929}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -2411,8 +2411,8 @@ Camera:
   m_GameObject: {fileID: 1704179535}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -2460,8 +2460,7 @@ MonoBehaviour:
   textureCamera: {fileID: 1101555931}
   displayPlaneRenderer: {fileID: 1586522103}
   sidePlaneRenderer: {fileID: 838668348}
-  canPaste: 0
-  canCopy: 1
+  blankTexture: {fileID: 2800000, guid: 74c3cdd29edbe4330bcfb1827b48c160, type: 3}
   cutterCam: {fileID: 2123223257}
   clipboard: {fileID: 96532789}
 --- !u!1 &1891654282
@@ -2718,8 +2717,8 @@ Camera:
   m_GameObject: {fileID: 2123223255}
   m_Enabled: 0
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -2733,7 +2732,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 1
-  far clip plane: 31.5
+  far clip plane: 30
   field of view: 43.63
   orthographic: 0
   orthographic size: 5
