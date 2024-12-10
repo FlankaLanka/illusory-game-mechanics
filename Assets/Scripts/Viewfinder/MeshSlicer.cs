@@ -38,6 +38,11 @@ public class MeshSlicer
 
     public static (GameObject, GameObject) Cut(GameObject originalObject, Vector3 planeNormal, Vector3 planePoint)
     {
+        if (originalObject.GetComponent<Sliceable>() == null)
+        {
+            return (null,null);
+        }
+
         //check mesh requirements
         MeshFilter mainMeshFilter = originalObject.GetComponent<MeshFilter>();
         MeshRenderer mainMeshRenderer = originalObject.GetComponent<MeshRenderer>();
@@ -319,6 +324,7 @@ public class MeshSlicer
         GameObject g = new GameObject("Dupe of " + originalObject.name + side);
         g.AddComponent<MeshFilter>().mesh = createdMesh;
         g.AddComponent<MeshRenderer>().material = originalMeshRenderer.material;
+        g.AddComponent<Sliceable>();
         g.transform.SetPositionAndRotation(originalObject.transform.position, originalObject.transform.rotation);
         g.transform.localScale = originalObject.transform.lossyScale;
         return g;
