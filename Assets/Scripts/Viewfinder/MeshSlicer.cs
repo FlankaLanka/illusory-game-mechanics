@@ -65,9 +65,10 @@ public class MeshSlicer
         Mesh rightMesh = new();
         SeparateMesh(mainMeshFilter.mesh, leftMesh, rightMesh, originalObject.transform, planeNormal, planePoint);
 
-        SaveMeshToFile(mainMeshFilter.mesh, "mainM");
-        SaveMeshToFile(leftMesh, "leftM");
-        SaveMeshToFile(rightMesh, "rightM");
+        //uncomment for debug
+        //SaveMeshToFile(mainMeshFilter.mesh, "mainM");
+        //SaveMeshToFile(leftMesh, "leftM");
+        //SaveMeshToFile(rightMesh, "rightM");
 
         return (ConstructGameObjectFromMesh(leftMesh, mainMeshRenderer, originalObject, " left"), ConstructGameObjectFromMesh(rightMesh, mainMeshRenderer, originalObject, " right"));
     }
@@ -108,7 +109,6 @@ public class MeshSlicer
                 CustomVertexDataStruct datav2 = new(mainMesh.vertices[v2], mainMesh.normals[v2], mainMesh.uv[v2]);
                 CustomVertexDataStruct datav3 = new(mainMesh.vertices[v3], mainMesh.normals[v3], mainMesh.uv[v3]);
                 AddTriangleToMesh(datav1, datav2, datav3, customLeftMesh, vertexDataMapLeft, generatedVerticesLeft);
-                //Debug.Log("HERE IN LEFT");
             }
             else if (!v1NormalSide && !v2NormalSide && !v3NormalSide)
             {
@@ -116,7 +116,6 @@ public class MeshSlicer
                 CustomVertexDataStruct datav2 = new(mainMesh.vertices[v2], mainMesh.normals[v2], mainMesh.uv[v2]);
                 CustomVertexDataStruct datav3 = new(mainMesh.vertices[v3], mainMesh.normals[v3], mainMesh.uv[v3]);
                 AddTriangleToMesh(datav1, datav2, datav3, customRightMesh, vertexDataMapRight, generatedVerticesRight);
-                //Debug.Log("HERE IN RIGHT");
             }
             else
             {
@@ -144,32 +143,17 @@ public class MeshSlicer
                 {
                     Patch((v1, v2), v3, customRightMesh, customLeftMesh, planeNormal, planePoint, mainMesh, meshTransform, vertexDataMapRight, vertexDataMapLeft, generatedVerticesRight, generatedVerticesLeft);
                 }
-                //Debug.Log("HERE IN SLICE");
             }
         }
 
         //patched plane here
         Vector3 leftCenter = AddCenterPoint(customLeftMesh, generatedVerticesLeft, -planeNormal);
         SelectionSortAngles(generatedVerticesLeft, customLeftMesh, leftCenter, -planeNormal);
-        PatchPlane(customLeftMesh, generatedVerticesLeft, -planeNormal);
-
-        Debug.Log("CHECKPOINTTTTTTTTTT");
-        for (int i = 0; i < generatedVerticesLeft.Count; i++)
-        {
-            Debug.Log(customLeftMesh.verticesList[generatedVerticesLeft[i]] + " Index is " + generatedVerticesLeft[i]);
-        }
-
-        foreach (var entry in vertexDataMapLeft)
-        {
-            var key = entry.Key;
-            int value = entry.Value;
-            //Debug.Log($"Key: Vertex = {key.Item1}, Normal = {key.Item2}, UV = {key.Item3}, Value: {value}");
-        }
-
+        PatchPlane(customLeftMesh, generatedVerticesLeft, meshTransform.InverseTransformVector(-planeNormal), vertexDataMapLeft);
 
         Vector3 rightCenter = AddCenterPoint(customRightMesh, generatedVerticesRight, planeNormal);
         SelectionSortAngles(generatedVerticesRight, customRightMesh, rightCenter, planeNormal);
-        PatchPlane(customRightMesh, generatedVerticesRight, planeNormal);
+        PatchPlane(customRightMesh, generatedVerticesRight, meshTransform.InverseTransformVector(planeNormal), vertexDataMapLeft);
 
 
         leftMesh.vertices = customLeftMesh.verticesList.ToArray();
@@ -184,7 +168,6 @@ public class MeshSlicer
         leftMesh.triangles = customLeftMesh.trianglesList.ToArray();
         rightMesh.triangles = customRightMesh.trianglesList.ToArray();
     }
-
 
 
     private static Vector3 AddCenterPoint(CustomMeshDataStruct customMesh, List<int> generatedVertices, Vector3 planeNormal)
@@ -203,8 +186,6 @@ public class MeshSlicer
             output.uv /= generatedVertices.Count;
         }
 
-        Debug.Log("CENTER POINT: " + output.vertex);
-
         customMesh.verticesList.Add(output.vertex);
         customMesh.normalsList.Add(planeNormal);
         customMesh.uvsList.Add(output.uv);
@@ -212,75 +193,33 @@ public class MeshSlicer
         return output.vertex;
     }
 
-    private static void PatchPlane(CustomMeshDataStruct customMesh, List<int> generatedVertices, Vector3 planeNormal)
+    //vertex data map is passed but not used, new vertices generated wont be used later. No point doing free work for now.
+    private static void PatchPlane(CustomMeshDataStruct customMesh, List<int> generatedVertices, Vector3 planeNormal, Dictionary<(Vector3, Vector3, Vector2), int> vertexDataMap)
     {
-        //int centerPointIndex = customMesh.verticesList.Count - 1;
+        //need to create new vertices based on the generated vertices because normals need to be properly mapped
+        int centerPointIndex = customMesh.verticesList.Count - 1;
 
-        ////need to create new vertices based on the generated vertices because normals need to be properly mapped
-
-        //for(int i = 0; i < generatedVertices.Count; i ++)
-        //{
-
-        //}
-
-
-
-        //return;
-
-        Vector3 a, b, c;
-
-        Debug.Log("TRIANGLES PATCHED PLANE");
-        for (int i = 0; i < generatedVertices.Count - 1; i++)
+        //first create new vertices
+        for (int i = 0; i < generatedVertices.Count; i++)
         {
-            c = customMesh.verticesList[customMesh.verticesList.Count - 1];
-            a = customMesh.verticesList[generatedVertices[i]];
-            b = customMesh.verticesList[generatedVertices[i + 1]];
-
-            if (Vector3.Dot(Vector3.Cross(a - c, b - c), planeNormal) > 0)
-            {
-                customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
-                customMesh.trianglesList.Add(generatedVertices[i]);
-                customMesh.trianglesList.Add(generatedVertices[i + 1]);
-                Debug.Log("created triangle " + (customMesh.verticesList.Count - 1) + " " + generatedVertices[i] + " " + generatedVertices[i + 1]);
-            }
-            else
-            {
-                customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
-                customMesh.trianglesList.Add(generatedVertices[i + 1]);
-                customMesh.trianglesList.Add(generatedVertices[i]);
-                Debug.Log("created triangle " + (customMesh.verticesList.Count - 1) + " " + generatedVertices[i + 1] + " " + generatedVertices[i]);
-            }
+            CustomVertexDataStruct construction = new(customMesh.verticesList[generatedVertices[i]], customMesh.normalsList[centerPointIndex], customMesh.uvsList[centerPointIndex]);
+            AddVertexDataToMesh(construction, customMesh);
         }
 
-        if (generatedVertices.Count < 3 || customMesh.verticesList.Count < 3)
-            return;
-
-        //add last triangle (loop around)
-        c = customMesh.verticesList[customMesh.verticesList.Count - 1];
-        a = customMesh.verticesList[generatedVertices[generatedVertices.Count - 1]];
-        b = customMesh.verticesList[generatedVertices[0]];
-
-        if (Vector3.Dot(Vector3.Cross(a - c, b - c), planeNormal) > 0)
+        //iterate through the vertices after center in pairs
+        for (int i = centerPointIndex + 1; i < customMesh.verticesList.Count - 1; i++)
         {
-            customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
-            customMesh.trianglesList.Add(generatedVertices[generatedVertices.Count - 1]);
-            customMesh.trianglesList.Add(generatedVertices[0]);
-            Debug.Log("created triangle " + (customMesh.verticesList.Count - 1) + " " + generatedVertices[generatedVertices.Count - 1] + " " + generatedVertices[0]);
+            TestNewTriangleBuiltForPlane(i, i + 1, centerPointIndex, customMesh, planeNormal);
         }
-        else
-        {
-            customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
-            customMesh.trianglesList.Add(generatedVertices[0]);
-            customMesh.trianglesList.Add(generatedVertices[generatedVertices.Count - 1]);
-            Debug.Log("created triangle " + (customMesh.verticesList.Count - 1) + " " + generatedVertices[0] + " " + generatedVertices[generatedVertices.Count - 1]);
-        }
+
+        //add final triangle
+        TestNewTriangleBuiltForPlane(customMesh.verticesList.Count - 1, centerPointIndex + 1, centerPointIndex, customMesh, planeNormal);
     }
 
     private static void AddTriangleToMesh(CustomVertexDataStruct v1, CustomVertexDataStruct v2, CustomVertexDataStruct v3, CustomMeshDataStruct customMesh,
                                           Dictionary<(Vector3, Vector3, Vector2), int> vertexDataMap, List<int> generatedVertices)
     {
         //check dictionary if vertex is already there
-        
         if (vertexDataMap.ContainsKey((v1.vertex, v1.normal, v1.uv)))
         {
             customMesh.trianglesList.Add(vertexDataMap[(v1.vertex, v1.normal, v1.uv)]);
@@ -324,23 +263,6 @@ public class MeshSlicer
 
             vertexDataMap[(v3.vertex, v3.normal, v3.uv)] = customMesh.verticesList.Count - 1;
         }
-
-        //return;
-
-        //AddVertexDataToMesh(v1, customMesh);
-        //AddVertexDataToMesh(v2, customMesh);
-        //AddVertexDataToMesh(v3, customMesh);
-
-        //customMesh.trianglesList.Add(customMesh.verticesList.Count - 3);
-        //customMesh.trianglesList.Add(customMesh.verticesList.Count - 2);
-        //customMesh.trianglesList.Add(customMesh.verticesList.Count - 1);
-
-        //if (v1.generated)
-        //    generatedVertices.Add(customMesh.verticesList.Count - 3);
-        //if (v2.generated)
-        //    generatedVertices.Add(customMesh.verticesList.Count - 2);
-        //if (v3.generated)
-        //    generatedVertices.Add(customMesh.verticesList.Count - 1);
     }
 
     private static void AddVertexDataToMesh(CustomVertexDataStruct vertexData, CustomMeshDataStruct customMesh)
@@ -350,9 +272,28 @@ public class MeshSlicer
         customMesh.uvsList.Add(vertexData.uv);
     }
 
-    private static void Patch((int,int) vIndexSameSide, int vIndexOppositeSide, CustomMeshDataStruct customMeshDuo, CustomMeshDataStruct customMeshSolo,
-                              Vector3 planeNormal, Vector3 planePoint, Mesh mainMesh, Transform meshTransform, Dictionary<(Vector3, Vector3, Vector2), int> vertexDataMapSolo,
-                              Dictionary<(Vector3, Vector3, Vector2), int> vertexDataMapDuo, List<int> generatedVerticesDuo, List<int> generatedVerticesSolo)
+    private static void TestNewTriangleBuiltForPlane(int a, int b, int c, CustomMeshDataStruct customMesh, Vector3 planeNormal)
+    {
+        if (a > customMesh.verticesList.Count - 1 || b > customMesh.verticesList.Count - 1)
+            return;
+
+        if (Vector3.Dot(Vector3.Cross(customMesh.verticesList[a] - customMesh.verticesList[c], customMesh.verticesList[b] - customMesh.verticesList[c]), planeNormal) > 0)
+        {
+            customMesh.trianglesList.Add(c);
+            customMesh.trianglesList.Add(a);
+            customMesh.trianglesList.Add(b);
+        }
+        else
+        {
+            customMesh.trianglesList.Add(c);
+            customMesh.trianglesList.Add(b);
+            customMesh.trianglesList.Add(a);
+        }
+    }
+
+    private static void Patch((int, int) vIndexSameSide, int vIndexOppositeSide, CustomMeshDataStruct customMeshDuo, CustomMeshDataStruct customMeshSolo,
+                          Vector3 planeNormal, Vector3 planePoint, Mesh mainMesh, Transform meshTransform, Dictionary<(Vector3, Vector3, Vector2), int> vertexDataMapSolo,
+                          Dictionary<(Vector3, Vector3, Vector2), int> vertexDataMapDuo, List<int> generatedVerticesDuo, List<int> generatedVerticesSolo)
     {
 
         float lerpTime1 = FindLerpOnPlane(planeNormal, planePoint, meshTransform.TransformPoint(mainMesh.vertices[vIndexSameSide.Item1]), meshTransform.TransformPoint(mainMesh.vertices[vIndexOppositeSide]));
