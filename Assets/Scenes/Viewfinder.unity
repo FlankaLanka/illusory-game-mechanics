@@ -33,12 +33,12 @@ RenderSettings:
   m_HaloTexture: {fileID: 0}
   m_SpotCookie: {fileID: 10001, guid: 0000000000000000e000000000000000, type: 0}
   m_DefaultReflectionMode: 0
-  m_DefaultReflectionResolution: 128
+  m_DefaultReflectionResolution: 16
   m_ReflectionBounces: 1
-  m_ReflectionIntensity: 1
+  m_ReflectionIntensity: 0
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12729394, g: 0.1341429, b: 0.121147014, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 0}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -893,27 +893,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7559228255151644648, guid: 82321b2c38ff4684c87c76d05a4eef7b, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.41074294
       objectReference: {fileID: 0}
     - target: {fileID: 7559228255151644648, guid: 82321b2c38ff4684c87c76d05a4eef7b, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0.30699554
       objectReference: {fileID: 0}
     - target: {fileID: 7559228255151644648, guid: 82321b2c38ff4684c87c76d05a4eef7b, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0.68766236
       objectReference: {fileID: 0}
     - target: {fileID: 7559228255151644648, guid: 82321b2c38ff4684c87c76d05a4eef7b, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: -0.51396936
       objectReference: {fileID: 0}
     - target: {fileID: 7559228255151644648, guid: 82321b2c38ff4684c87c76d05a4eef7b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: 73.55
       objectReference: {fileID: 0}
     - target: {fileID: 7559228255151644648, guid: 82321b2c38ff4684c87c76d05a4eef7b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 118.3
       objectReference: {fileID: 0}
     - target: {fileID: 7559228255151644648, guid: 82321b2c38ff4684c87c76d05a4eef7b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -3265,7 +3265,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 1
-  far clip plane: 50
+  far clip plane: 100
   field of view: 43.63
   orthographic: 0
   orthographic size: 5
