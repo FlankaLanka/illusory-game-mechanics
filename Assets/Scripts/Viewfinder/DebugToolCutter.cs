@@ -1,17 +1,15 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+//This is a debug script for testing slicing
 public class MeshClipper : MonoBehaviour
 {
-    public Transform cutPlane;
     public Vector3 planePoint;
     public Vector3 planeNormal;
 
+    public Transform cutPlane;
     public GameObject objectToCut;
-
-
     public GameObject left, right;
-    public bool lol = false;
 
     private void Update()
     {
@@ -20,8 +18,6 @@ public class MeshClipper : MonoBehaviour
 
         if(Input.GetKeyDown(KeyCode.E))
         {
-            //Destroy(left);
-            //Destroy(right);
             (left, right) = MeshSlicer.Cut(objectToCut, planeNormal, planePoint);
             objectToCut.SetActive(false);
         }
