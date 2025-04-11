@@ -1149,7 +1149,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 8560481640276419599, guid: fb977686553654e56a025f2faea5abf0, type: 3}
       propertyPath: field of view
-      value: 24.7
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 8560481641020241321, guid: fb977686553654e56a025f2faea5abf0, type: 3}
       propertyPath: m_Name
@@ -1157,7 +1157,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8560481641020241325, guid: fb977686553654e56a025f2faea5abf0, type: 3}
       propertyPath: speed
-      value: 4.7
+      value: 5.24
       objectReference: {fileID: 0}
     - target: {fileID: 8560481641020241363, guid: fb977686553654e56a025f2faea5abf0, type: 3}
       propertyPath: m_RootOrder
